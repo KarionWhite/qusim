@@ -1,0 +1,10 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "quantennetzwerk-app",
+  "outputfilename": "quantennetzwerk-app",
+  "wailsjsdir": "./frontend",
+  "author": {
+    "name": "KarionWhite",
+    "email": "92185725+KarionWhite@users.noreply.github.com"
+  }
+}
