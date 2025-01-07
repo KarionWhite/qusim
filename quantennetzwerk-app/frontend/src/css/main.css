@@ -2,6 +2,16 @@ body{
     overflow: hidden;
 }
 
+.qgates-list{
+    border-top : 5px solid #000;
+}
+
+.grid-container {
+    width: 500px; /* Beispielgröße */
+    height: 500px;
+    border: 1px solid black;
+  }
+
 #menu-bar {
     background-color: #f0f0f0;
   }
@@ -20,4 +30,5 @@ body{
     height: 100vh;
     background-color: #d0d0d0;
     padding: 10px;
+    overflow:scroll;
   }
