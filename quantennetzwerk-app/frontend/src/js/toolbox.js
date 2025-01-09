@@ -1,3 +1,10 @@
+let changes = {}
+let blocks = {}
+let wires = {}
+let wire_nodes = {}
+let wire_drawing = false
+let id_counter = 1
+let currently_dragging = null;
 /**
  * Ein allgemeines Gatter-Template für die Toolbox
  * du kannst die Menge der Inputs und Outputs angeben und diese werden automatisch generiert
@@ -27,6 +34,7 @@ const ntomTemplate = (id, name, klasse, inputs, outputs) => {
     rect.setAttribute("fill", "white");
     rect.setAttribute("stroke", "black");
     rect.setAttribute("stroke-width", "1");
+    rect.addEventListener("mousedown", (event) => dragndrop(event, id));
     g.appendChild(rect);
 
     // Text
@@ -41,6 +49,7 @@ const ntomTemplate = (id, name, klasse, inputs, outputs) => {
     text.setAttribute("font-size", "20");
     text.setAttribute("fill", "black");
     text.textContent = name;
+    text.addEventListener("mousedown", (event) => dragndrop(event, id));
     g.appendChild(text);
 
     // Inputs grüne Kreise
@@ -53,7 +62,19 @@ const ntomTemplate = (id, name, klasse, inputs, outputs) => {
         circle.setAttribute("fill", "green");
         circle.setAttribute("stroke", "black");
         circle.setAttribute("stroke-width", "1");
+        circle.addEventListener("mousedown", (event) => startWire(event,`${id}_input_${i}`));
         g.appendChild(circle);
+        //Unsichtbare Hitbox zum Klicken auf den Input
+        const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        hitbox.setAttribute("id", `${id}_input_hitbox_${i}`);
+        hitbox.setAttribute("x", "-5");
+        hitbox.setAttribute("y", 20 * i + in_out_offset - 5);
+        hitbox.setAttribute("width", "10");
+        hitbox.setAttribute("height", "10");
+        hitbox.setAttribute("fill", "transparent");
+        hitbox.addEventListener("mousedown", (event) => startWire(event, `${id}_input_${i}`));
+        g.appendChild(hitbox);
+ 
     }
 
     // Outputs
@@ -64,7 +85,18 @@ const ntomTemplate = (id, name, klasse, inputs, outputs) => {
         polygon.setAttribute("fill", "white");
         polygon.setAttribute("stroke", "black");
         polygon.setAttribute("stroke-width", "1");
+        polygon.addEventListener("mousedown", (event) => startWire(event,`${id}_output_${i}`));
         g.appendChild(polygon);
+        //Unsichtbare Hitbox zum Klicken auf den Output
+        const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        hitbox.setAttribute("id", `${id}_input_hitbox_${i}`);
+        hitbox.setAttribute("x", width - 5);
+        hitbox.setAttribute("y", 20 * i + in_out_offset - 5);
+        hitbox.setAttribute("width", "10");
+        hitbox.setAttribute("height", "10");
+        hitbox.setAttribute("fill", "transparent");
+        hitbox.addEventListener("mousedown", (event) => startWire(event,`${id}_output_${i}`));
+        g.appendChild(hitbox);
     }
     return g;
 };
@@ -99,11 +131,48 @@ const schattenTemplate = (id, inputs, outputs) => {
     return g;
 };
 
-const onersTemplaes = ["qinput","identity", "hadamard", "pauli_x", "pauli_y", "pauli_z", "measure"];
+// Wire Template für die Toolbox
+const wireTemplate = (id, x1, y1, x2, y2) => {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("id", id);
+    g.setAttribute("class", "wire");
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", x1);
+    line.setAttribute("y1", y1);
+    line.setAttribute("x2", x2);
+    line.setAttribute("y2", y2);
+    line.setAttribute("stroke", "black");
+    line.setAttribute("stroke-width", "1");
+    g.appendChild(line);
+
+    return g;
+};
+
+//Wire Node Template für die Toolbox
+const wireNodeTemplate = (id, x, y) => {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("id", id);
+    g.setAttribute("class", "wire_node");
+
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", x);
+    circle.setAttribute("cy", y);
+    circle.setAttribute("r", "5");
+    circle.setAttribute("fill", "black");
+    circle.setAttribute("stroke", "black");
+    circle.setAttribute("stroke-width", "1");
+    g.appendChild(circle);
+
+    return g;
+};
+
+// Templates für die verschiedenen Gatter
+const onersTemplaes = ["qinput", "identity", "hadamard", "pauli_x", "pauli_y", "pauli_z", "measure"];
 const qinputTemplate = (id) => { return ntomTemplate(id, "Input", "qinput", 0, 1); }
 const measureTemplate = (id) => { return ntomTemplate(id, "M", "measure", 1, 0); }
-const identityTemplate = (id) => { return ntomTemplate(id, "Identity", "identity", 1, 1); }
-const hadamardTemplate = (id) => { return ntomTemplate(id, "Hadamard", "hadamard", 1, 1); }
+const identityTemplate = (id) => { return ntomTemplate(id, "Ident", "identity", 1, 1); }
+const hadamardTemplate = (id) => { return ntomTemplate(id, "Hada", "hadamard", 1, 1); }
 const pauli_xTemplate = (id) => { return ntomTemplate(id, "Pauli X", "pauli_x", 1, 1); }
 const pauli_yTemplate = (id) => { return ntomTemplate(id, "Pauli Y", "pauli_y", 1, 1); }
 const pauli_zTemplate = (id) => { return ntomTemplate(id, "Pauli Z", "pauli_z", 1, 1); }
@@ -137,16 +206,16 @@ const toolButtonClicked = (tool) => {
     resetButtons();
     document.getElementById("tool_" + tool).classList.add("active");
     activeShadow = null;
-    if(document.getElementById("qshadow") !== null) {
+    if (document.getElementById("qshadow") !== null) {
         document.getElementById("qshadow").remove();
     }
-    if(onersTemplaes.includes(tool)) {
+    if (onersTemplaes.includes(tool)) {
         activeShadow = shadowoneTemplate("qshadow");
-    } else if(tworsTemplates.includes(tool)) {
+    } else if (tworsTemplates.includes(tool)) {
         activeShadow = shadowtwoTemplate("qshadow");
-    } else if(threersTemplates.includes(tool)) {
+    } else if (threersTemplates.includes(tool)) {
         activeShadow = shadowthreeTemplate("qshadow");
-    } else if(xgateTemplate === "xgate") {
+    } else if (xgateTemplate === "xgate") {
         activeShadow = shadowXgateTemplate("qshadow", 1, 1);
     }
     return () => {
@@ -189,30 +258,122 @@ addEventListener("DOMContentLoaded", () => {
     // Event-Listener für das Toolbox-Grid
     //Wir wollen den Schatten so zeichenen, sodass eine vorschau des Gatters gezeigt wird
     toolbox_grid.addEventListener("mousemove", (event) => {
-        if (activeTool === "select" || activeTool === "wire") return;
-        if (document.getElementById("qshadow") === null) {
+        if (activeTool === "select") {
+            if (currently_dragging !== null) {
+                dragndrop(event, null);
+            }
+        } else if (activeTool === "wire") {
+            return;
+        } else if (document.getElementById("qshadow") === null) {
             toolbox_grid.appendChild(activeShadow);
+        } else {
+            const x = event.offsetX;
+            const y = event.offsetY;
+            set_raster_element(activeShadow, x, y);
         }
-
-        const x = event.offsetX;
-        const y = event.offsetY;
-        set_raster_element(activeShadow, x, y);
     });
 
     toolbox_grid.addEventListener("mousedown", (event) => {
         console.log(event.button + " " + event.target.id + " " + (event.button === 0));
-        if(event.button === 0) {
-            if(activeTool === "select" || activeTool === "wire") return;
-            // Koordinaten des Klicks berechnen
-            const x = event.offsetX;
-            const y = event.offsetY;
-
-            // Neues QInput-Element erstellen
-            const chosenTemplate = eval(`${activeTool}Template`)();
-            set_raster_element(chosenTemplate, x, y);
-
-            // Hinzufügen zum SVG
-            toolbox_grid.appendChild(chosenTemplate);
+        const x = event.offsetX;
+        const y = event.offsetY;
+        if (event.button === 0) {
+            if (activeTool === "select") {
+                selecttool(x, y);
+            }
+            else if (activeTool === "wire") {
+                wiringtool(x, y);
+            }
+            else {
+                placeTemplate(x, y);
+            }
         }
     });
 });
+
+function dragndrop(event, id) {
+    //Wir bewegen das Element. Wir bekommen das aus dem mousemovement event. id ist null
+    document.getElementById("tool_select").click();
+    if (event.type === "mousemove") {
+        const x = event.offsetX;
+        const y = event.offsetY;
+        set_raster_element(document.getElementById(currently_dragging), x, y);
+    }
+    //2. Click wir droppen das Element
+    else if (event.type === "mousedown" && currently_dragging === id) {
+        currently_dragging = null;
+    }
+    //1. Click wir heben das Element
+    else if (event.type === "mousedown" && currently_dragging === null) {
+        currently_dragging = id;
+    }
+}
+
+function selecttool(x, y) {
+    console.log("Select-Tool");
+}
+
+
+/**
+ * Funktion zum Zeichnen von Wires
+ * Idee: 
+ * 1. Klick auf einen Input/Output
+ * 2. Wir starten wires im waagerechten zu zeichnen
+ * 3. Klick und wenn es nicht auf einen Input/Output ist, dann zeichnen wir im senkrechten
+ * 4. Klick Wenn wir im senkrechten sind gehen wir zurück zum waagerechten
+ * Am Ende steht wieder ein Input/Output
+ * Daraus folgt, dass eine ungerade Anzahl uns in den senkrechten Modus bringt
+ * Eine gerade Anzahl bringt uns in den waagerechten Modus
+ */
+
+
+current_wire_part_id = null;
+function startWire(event, id) {};
+
+function draw_wire(event){
+    if(current_wire_part_id === null){
+        return; //Wie sind wir hier gelandet?
+    }else if(event.type === "mousemove"){
+        length = wire_nodes.length-1;
+        [last_id, last_x, last_y] = wire_nodes[length];
+        if(length % 2 === 0){  //Wir sind im waagerechten Modus
+            document.getElementById(current_wire_part_id).remove();
+            let new_x = Math.round(event.offsetX/20)*20;
+            let wire = wireTemplate(current_wire_part_id, last_x, last_y, new_x, last_y);
+            set_raster_element(wire, last_x, last_y);
+            toolbox_grid.appendChild(wire);
+        }else{  //Wir sind im senkrechten Modus
+            document.getElementById(current_wire_part_id).remove();
+            let new_y = Math.round(event.offsetY/20)*20;
+            let wire = wireTemplate(current_wire_part_id, last_x, last_y, last_x, new_y);
+            set_raster_element(wire, last_x, last_y);
+            toolbox_grid.appendChild(wire);
+        }
+    }else if(event.type === "mousedown"){
+        last_wire = document.getElementById(current_wire_part_id); //dieses Wire ist fertig
+        wires[current_wire_part_id] = last_wire.outerHTML;
+        //TODO
+
+    }
+}
+
+
+
+function wiringtool() {
+    console.log("Wire-Tool");
+}
+
+function placeTemplate(x, y) {
+    // Neues QInput-Element erstellen
+    const chosenTemplate = eval(`${activeTool}Template`)(`${activeTool}_${id_counter++}`);
+    set_raster_element(chosenTemplate, x, y);
+
+    // Hinzufügen zum SVG
+    toolbox_grid.appendChild(chosenTemplate);
+
+    blocks[Date.now()] = {
+        id: chosenTemplate.id,
+        x: x,
+        y: y
+    };
+}
