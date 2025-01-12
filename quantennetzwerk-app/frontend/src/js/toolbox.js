@@ -1,8 +1,10 @@
 let changes = {}
 let blocks = {}
 let wires = {}
+let wire_parts = {}
 let wire_nodes = {}
 let wire_drawing = false
+let current_wire_part_id = null;
 let id_counter = 1
 let currently_dragging = null;
 /**
@@ -18,7 +20,7 @@ let currently_dragging = null;
 const ntomTemplate = (id, name, klasse, inputs, outputs) => {
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.setAttribute("id", id);
-    g.setAttribute("class", `gate ${klasse}`);
+    g.setAttribute("class", `gate_${klasse}`);
     g.setAttribute("draggable", "true");    //Funktioniert nicht ?! Wir werden es wohl mit JS machen müssen =(
 
     //Wir wollen die Größe des Gatters berechnen
@@ -62,7 +64,6 @@ const ntomTemplate = (id, name, klasse, inputs, outputs) => {
         circle.setAttribute("fill", "green");
         circle.setAttribute("stroke", "black");
         circle.setAttribute("stroke-width", "1");
-        circle.addEventListener("mousedown", (event) => startWire(event,`${id}_input_${i}`));
         g.appendChild(circle);
         //Unsichtbare Hitbox zum Klicken auf den Input
         const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -85,7 +86,6 @@ const ntomTemplate = (id, name, klasse, inputs, outputs) => {
         polygon.setAttribute("fill", "white");
         polygon.setAttribute("stroke", "black");
         polygon.setAttribute("stroke-width", "1");
-        polygon.addEventListener("mousedown", (event) => startWire(event,`${id}_output_${i}`));
         g.appendChild(polygon);
         //Unsichtbare Hitbox zum Klicken auf den Output
         const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -237,9 +237,56 @@ function set_raster_element(element, x, y) {
     element.setAttribute("transform", `translate(${x_offset + Math.round(x / raster) * raster},${y_offset + Math.round(y / raster) * raster})`);
 }
 
+function get_next_grid_point(x, y) {
+    const raster = 20;
+    const x_offset = -30;
+    const y_offset = -35;
+    return [x_offset + Math.round(x / raster) * raster, y_offset + Math.round(y / raster) * raster];
+}
+
+function get_element_position(element) {
+    const transform = element.getAttribute("transform");
+    if (!transform) {
+      console.error(`Element ${element.id} hat kein transform Attribut!`);
+      return [0, 0];
+    }
+    const x = parseInt(transform.split("(")[1].split(",")[0]) || 0;
+    const y = parseInt(transform.split(",")[1].split(")")[0]) || 0;
+    return [x, y];
+  }
+
+function get_template_rect_dimensions(element) {
+    if (element.getAttribute("class").includes("gate")) {
+      const rect = element.querySelector(`#${element.id}_rect`);
+      const x = parseInt(rect.getAttribute("x")) || 0; 
+      const y = parseInt(rect.getAttribute("y")) || 0; 
+      const width = parseInt(rect.getAttribute("width"));
+      const height = parseInt(rect.getAttribute("height"));
+      return [x, y, width, height];
+    }
+  }
+
+function get_element_with_position(x, y) {
+    for (let key in blocks) {
+        const element = document.getElementById(blocks[key].id);
+        const [x1, y1] = get_element_position(element);
+        const [x2, y2, width, height] = get_template_rect_dimensions(element);
+        if (x >= x1 && x <= x1 + width && y >= y1 && y <= y1 + height) {
+            return element;
+        }
+    }
+    return null;
+}
+
+function get_nearest_raster_point(x, y) {
+    const raster = 20;
+    const x_offset = -30;
+    const y_offset = -35;
+    return [x_offset + Math.round(x / raster) * raster, y_offset + Math.round(y / raster) * raster];
+}
+
 addEventListener("DOMContentLoaded", () => {
     const toolbox_grid = document.getElementById("toolbox_grid");
-    let id_counter = 0;
 
     // Event_Listener für die Buttons
     const buttonIds = [
@@ -263,7 +310,7 @@ addEventListener("DOMContentLoaded", () => {
                 dragndrop(event, null);
             }
         } else if (activeTool === "wire") {
-            return;
+            console.log(get_nearest_raster_point(event.offsetX, event.offsetY));
         } else if (document.getElementById("qshadow") === null) {
             toolbox_grid.appendChild(activeShadow);
         } else {
@@ -324,11 +371,39 @@ function selecttool(x, y) {
  * Am Ende steht wieder ein Input/Output
  * Daraus folgt, dass eine ungerade Anzahl uns in den senkrechten Modus bringt
  * Eine gerade Anzahl bringt uns in den waagerechten Modus
+ * {wire_{eine id}:[
+ *      {type: "{input}", id: "{Nummer des Blocks}", "port": {Nummer}, "x": "{x}", "y": "{y}"},
+ *      {type: "{node}", id: "{Nummer des Nodes}", "port": 0, "x": "{x}", "y": "{y}"},
+ *      {type: "{node}", id: "{Nummer des Nodes}", "port": 0, "x": "{x}", "y": "{y}"},
+ *      {type: "{output}", id: "{Nummer des Blocks}", "port": {Nummer}, "x": "{x}", "y": "{y}"}
+ *      ...
+ *  ],
+ * wire_{eine id}:[
+ *      {type: "{output}", id: "{Nummer des Blocks}", "port": {Nummer}, "x": "{x}", "y": "{y}"},
+ *      {type: "{output}", id: "{Nummer des Blocks}", "port": {Nummer}, "x": "{x}", "y": "{y}"}
+ *  ]    
+ * ...
+ * 
+ * }
+ * Nodes haben immer nur den Port 0
  */
 
-
-current_wire_part_id = null;
-function startWire(event, id) {};
+function startWire(event, id) {
+    //linker Mausklick
+    if(event.type === "mousedown" && event.button == 0 && current_wire_part_id === null){
+        document.getElementById("tool_wire").click();
+        current_wire_part_id = "wire" + id_counter++;
+    }
+    //Ein erneutes klicken auf den Input/Output beendet das zeichnen
+    else if(event.type === "mousedown" && event.button == 0 && current_wire_part_id !== null){
+        draw_wire(event);
+        current_wire_part_id = null;
+    }
+    //Nun holen wir uns den Knoten Punkt
+    [rx,ry] = get_next_grid_point(event.offsetX, event.offsetY);
+    target_element = element.target.id;
+    
+};
 
 function draw_wire(event){
     if(current_wire_part_id === null){
@@ -373,7 +448,7 @@ function placeTemplate(x, y) {
 
     blocks[Date.now()] = {
         id: chosenTemplate.id,
-        x: x,
-        y: y
+        x: rx,
+        y: ry
     };
 }
