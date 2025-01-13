@@ -4,7 +4,7 @@ let wires = {}
 let wire_parts = {}
 let wire_nodes = {}
 let wire_drawing = false
-let current_wire_part_id = null;
+let current_wire_id = null;
 let id_counter = 1
 let currently_dragging = null;
 /**
@@ -75,7 +75,7 @@ const ntomTemplate = (id, name, klasse, inputs, outputs) => {
         hitbox.setAttribute("fill", "transparent");
         hitbox.addEventListener("mousedown", (event) => startWire(event, `${id}_input_${i}`));
         g.appendChild(hitbox);
- 
+
     }
 
     // Outputs
@@ -95,7 +95,7 @@ const ntomTemplate = (id, name, klasse, inputs, outputs) => {
         hitbox.setAttribute("width", "10");
         hitbox.setAttribute("height", "10");
         hitbox.setAttribute("fill", "transparent");
-        hitbox.addEventListener("mousedown", (event) => startWire(event,`${id}_output_${i}`));
+        hitbox.addEventListener("mousedown", (event) => startWire(event, `${id}_output_${i}`));
         g.appendChild(hitbox);
     }
     return g;
@@ -247,24 +247,24 @@ function get_next_grid_point(x, y) {
 function get_element_position(element) {
     const transform = element.getAttribute("transform");
     if (!transform) {
-      console.error(`Element ${element.id} hat kein transform Attribut!`);
-      return [0, 0];
+        console.error(`Element ${element.id} hat kein transform Attribut!`);
+        return [0, 0];
     }
     const x = parseInt(transform.split("(")[1].split(",")[0]) || 0;
     const y = parseInt(transform.split(",")[1].split(")")[0]) || 0;
     return [x, y];
-  }
+}
 
 function get_template_rect_dimensions(element) {
     if (element.getAttribute("class").includes("gate")) {
-      const rect = element.querySelector(`#${element.id}_rect`);
-      const x = parseInt(rect.getAttribute("x")) || 0; 
-      const y = parseInt(rect.getAttribute("y")) || 0; 
-      const width = parseInt(rect.getAttribute("width"));
-      const height = parseInt(rect.getAttribute("height"));
-      return [x, y, width, height];
+        x = parseInt(element.getAttribute("transform").split("(")[1].split(",")[0]) || 0;
+        y = parseInt(element.getAttribute("transform").split(",")[1].split(")")[0]) || 0;
+        const rect = element.querySelector(`#${element.id}_rect`);
+        const width = parseInt(rect.getAttribute("width"));
+        const height = parseInt(rect.getAttribute("height"));
+        return [x, y, width, height];
     }
-  }
+}
 
 function get_element_with_position(x, y) {
     for (let key in blocks) {
@@ -311,6 +311,7 @@ addEventListener("DOMContentLoaded", () => {
             }
         } else if (activeTool === "wire") {
             console.log(get_nearest_raster_point(event.offsetX, event.offsetY));
+            draw_wire(event);
         } else if (document.getElementById("qshadow") === null) {
             toolbox_grid.appendChild(activeShadow);
         } else {
@@ -318,6 +319,7 @@ addEventListener("DOMContentLoaded", () => {
             const y = event.offsetY;
             set_raster_element(activeShadow, x, y);
         }
+        mouse_debug(event);
     });
 
     toolbox_grid.addEventListener("mousedown", (event) => {
@@ -328,8 +330,8 @@ addEventListener("DOMContentLoaded", () => {
             if (activeTool === "select") {
                 selecttool(x, y);
             }
-            else if (activeTool === "wire") {
-                wiringtool(x, y);
+            else if (activeTool === "wire" && wire_drawing) {
+                draw_wire(event);
             }
             else {
                 placeTemplate(x, y);
@@ -348,6 +350,13 @@ function dragndrop(event, id) {
     }
     //2. Click wir droppen das Element
     else if (event.type === "mousedown" && currently_dragging === id) {
+        //updating blocks
+        [x, y] = get_element_position(document.getElementById(currently_dragging));
+        blocks[currently_dragging] = {
+            block: blocks[currently_dragging].block,
+            x: x,
+            y: y
+        };
         currently_dragging = null;
     }
     //1. Click wir heben das Element
@@ -390,45 +399,77 @@ function selecttool(x, y) {
 
 function startWire(event, id) {
     //linker Mausklick
-    if(event.type === "mousedown" && event.button == 0 && current_wire_part_id === null){
+    if (event.type === "mousedown" && event.button == 0 && current_wire_id === null) {
         document.getElementById("tool_wire").click();
-        current_wire_part_id = "wire" + id_counter++;
+        current_wire_id = "wire_" + id_counter++;
+        wire_nodes[current_wire_id] = [];
+        wire_drawing = true;
     }
     //Ein erneutes klicken auf den Input/Output beendet das zeichnen
-    else if(event.type === "mousedown" && event.button == 0 && current_wire_part_id !== null){
-        draw_wire(event);
-        current_wire_part_id = null;
+    else if (event.type === "mousedown" && event.button == 0 && current_wire_id !== null) {
+        current_wire_id = null;
+        wire_drawing = false;
     }
     //Nun holen wir uns den Knoten Punkt
-    [rx,ry] = get_next_grid_point(event.offsetX, event.offsetY);
-    target_element = element.target.id;
-    
+    [rx, ry] = get_next_grid_point(event.offsetX, event.offsetY);
+    target_element = event.target.id;
+    //target input oder output?
+    if (target_element.includes("input")) {
+        wire_nodes[current_wire_id].push({ type: "input", id: target_element.split("_")[0], port: target_element.split("_")[2], x: rx, y: ry });
+    }
+    else if (target_element.includes("output")) {
+        wire_nodes[current_wire_id].push({ type: "output", id: target_element.split("_")[0], port: target_element.split("_")[2], x: rx, y: ry });
+    }
+    else {
+        //Sollte nicht passieren
+        wire_nodes[current_wire_id].push({ type: "node", id: current_wire_part_id, port: 0, x: rx, y: ry });
+        console.log("Error: Wire-Node at" + rx + " " + ry);
+        console.log(current_wire_id);
+        console.log("Ausirgend einem Grund ist ein Node entstanden, obwohl wir auf keinen Input/Output geklickt haben");
+    }
+    console.log(wire_nodes);
+    event.stopPropagation();
+    event.preventDefault();
 };
 
-function draw_wire(event){
-    if(current_wire_part_id === null){
+function draw_wire(event) {
+    if (current_wire_id === null) {
         return; //Wie sind wir hier gelandet?
-    }else if(event.type === "mousemove"){
-        length = wire_nodes.length-1;
-        [last_id, last_x, last_y] = wire_nodes[length];
-        if(length % 2 === 0){  //Wir sind im waagerechten Modus
-            document.getElementById(current_wire_part_id).remove();
-            let new_x = Math.round(event.offsetX/20)*20;
-            let wire = wireTemplate(current_wire_part_id, last_x, last_y, new_x, last_y);
+    } else if (event.type === "mousemove") {
+        length = wire_nodes[current_wire_id].length - 1;
+        last_x = wire_nodes[current_wire_id][length].x;
+        last_y = wire_nodes[current_wire_id][length].y;
+        wire_exists = document.getElementById(current_wire_id);
+        if (wire_exists !== null) {
+            wire_exists.remove();
+        }
+        [mx, my] = get_next_grid_point(event.offsetX, event.offsetY);
+        if (length % 2 === 0) {  //Wir sind im waagerechten Modus
+            let new_x = mx;
+            let wire = wireTemplate(current_wire_id, 0, 0, new_x, 0);
             set_raster_element(wire, last_x, last_y);
             toolbox_grid.appendChild(wire);
-        }else{  //Wir sind im senkrechten Modus
-            document.getElementById(current_wire_part_id).remove();
-            let new_y = Math.round(event.offsetY/20)*20;
-            let wire = wireTemplate(current_wire_part_id, last_x, last_y, last_x, new_y);
+        } else {  //Wir sind im senkrechten Modus
+            let new_y = my;
+            let wire = wireTemplate(current_wire_id, 0, 0, 0, new_y);
             set_raster_element(wire, last_x, last_y);
             toolbox_grid.appendChild(wire);
         }
-    }else if(event.type === "mousedown"){
-        last_wire = document.getElementById(current_wire_part_id); //dieses Wire ist fertig
-        wires[current_wire_part_id] = last_wire.outerHTML;
-        //TODO
-
+    } else if (event.type === "mousedown" && event.button == 0 && wire_nodes[current_wire_id].length > 0) {
+        offsetX = event.offsetX;
+        offsetY = event.offsetY;
+        [x,y] = get_next_grid_point(offsetX, offsetY);
+        console.log("wiring mousedown event " + x + " " + y);
+        //speichere Node
+        wire_nodes[current_wire_id].push({ type: "node", id: `node_${id_counter++}`, port: 0, x: x, y: y });
+        //male fertigen Wire
+        node_one = wire_nodes[current_wire_id][wire_nodes[current_wire_id].length - 2];
+        node_two = wire_nodes[current_wire_id][wire_nodes[current_wire_id].length - 1];
+        wire = wireTemplate(`wired_${id_counter++}`, node_one.x, node_one.y, node_two.x, node_two.y);
+        set_raster_element(wire, node_one.x, node_one.y);
+        toolbox_grid.appendChild(wire);
+        //lösche alten Wire
+        document.getElementById(current_wire_id).remove();
     }
 }
 
@@ -445,10 +486,49 @@ function placeTemplate(x, y) {
 
     // Hinzufügen zum SVG
     toolbox_grid.appendChild(chosenTemplate);
-
-    blocks[Date.now()] = {
-        id: chosenTemplate.id,
+    [rx, ry, _, _] = get_template_rect_dimensions(chosenTemplate);
+    blocks[chosenTemplate.id] = {
+        block: activeTool,
         x: rx,
         y: ry
     };
+}
+
+const mouse_debug_window_template = (x,y) => {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("id", "mouse_debug_window");
+    g.setAttribute("class", "mouse_debug_window");
+    x = x + 10;
+    y = y + 10;
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", x);
+    rect.setAttribute("y", y);
+    rect.setAttribute("width", "100");
+    rect.setAttribute("height", "100");
+    rect.setAttribute("fill", "white");
+    rect.setAttribute("stroke", "black");
+    rect.setAttribute("stroke-width", "1");
+    g.appendChild(rect);
+
+    text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", x + 50);
+    text.setAttribute("y", y + 50);
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("alignment-baseline", "middle");
+    text.setAttribute("font-size", "20");
+    text.setAttribute("fill", "black");
+    [rx, ry] = get_next_grid_point(x, y);
+    text.textContent = `${rx} ${ry}`;
+    g.appendChild(text);
+
+    return g;
+}
+
+
+
+function mouse_debug(event){
+    if(document.getElementById("mouse_debug_window") !== null){
+        document.getElementById("mouse_debug_window").remove();
+    }
+    toolbox_grid.appendChild(mouse_debug_window_template(event.offsetX, event.offsetY));
 }
