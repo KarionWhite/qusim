@@ -239,8 +239,8 @@ function set_raster_element(element, x, y) {
 
 function get_next_grid_point(x, y) {
     const raster = 20;
-    const x_offset = -30;
-    const y_offset = -35;
+    const x_offset = 10;
+    const y_offset = -10;
     return [x_offset + Math.round(x / raster) * raster, y_offset + Math.round(y / raster) * raster];
 }
 
@@ -446,27 +446,31 @@ function draw_wire(event) {
         [mx, my] = get_next_grid_point(event.offsetX, event.offsetY);
         if (length % 2 === 0) {  //Wir sind im waagerechten Modus
             let new_x = mx;
-            let wire = wireTemplate(current_wire_id, 0, 0, new_x, 0);
-            set_raster_element(wire, last_x, last_y);
+            let wire = wireTemplate(current_wire_id, last_x, last_y, new_x, last_y);
             toolbox_grid.appendChild(wire);
         } else {  //Wir sind im senkrechten Modus
             let new_y = my;
-            let wire = wireTemplate(current_wire_id, 0, 0, 0, new_y);
-            set_raster_element(wire, last_x, last_y);
+            let wire = wireTemplate(current_wire_id, last_x, last_y, last_x, new_y);
             toolbox_grid.appendChild(wire);
         }
     } else if (event.type === "mousedown" && event.button == 0 && wire_nodes[current_wire_id].length > 0) {
         offsetX = event.offsetX;
         offsetY = event.offsetY;
+
         [x,y] = get_next_grid_point(offsetX, offsetY);
         console.log("wiring mousedown event " + x + " " + y);
-        //speichere Node
-        wire_nodes[current_wire_id].push({ type: "node", id: `node_${id_counter++}`, port: 0, x: x, y: y });
+        if(wire_nodes[current_wire_id].length % 2 === 1){ //Wir beenden den waagerechten Modus.
+            current_y = wire_nodes[current_wire_id][wire_nodes[current_wire_id].length - 1].y;
+            current_x = x  
+        }else{ //Wir sind im senkrechten Modus
+            current_x = wire_nodes[current_wire_id][wire_nodes[current_wire_id].length - 1].x;
+            current_y = y;
+        }
+        wire_nodes[current_wire_id].push({ type: "node", id: `node_${id_counter++}`, port: 0, x: current_x, y: current_y });
         //male fertigen Wire
         node_one = wire_nodes[current_wire_id][wire_nodes[current_wire_id].length - 2];
         node_two = wire_nodes[current_wire_id][wire_nodes[current_wire_id].length - 1];
         wire = wireTemplate(`wired_${id_counter++}`, node_one.x, node_one.y, node_two.x, node_two.y);
-        set_raster_element(wire, node_one.x, node_one.y);
         toolbox_grid.appendChild(wire);
         //lösche alten Wire
         document.getElementById(current_wire_id).remove();
