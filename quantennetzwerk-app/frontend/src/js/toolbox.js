@@ -1,12 +1,19 @@
 let changes = {}
 let blocks = {}
 let wires = {}
-let wire_parts = {}
 let wire_nodes = {}
 let wire_drawing = false
 let current_wire_id = null;
 let id_counter = 1
 let currently_dragging = null;
+let activeTool = "select";
+let activeShadow = null;
+
+const buttonIds = [
+    "select", "wire", "qinput", "identity", "hadamard",
+    "pauli_x", "pauli_y", "pauli_z", "cnot", "swap",
+    "toffoli", "fredkin", "measure", "xgate"
+];
 /**
  * Ein allgemeines Gatter-Template für die Toolbox
  * du kannst die Menge der Inputs und Outputs angeben und diese werden automatisch generiert
@@ -191,8 +198,6 @@ const shadowthreeTemplate = (id) => { return schattenTemplate(id, 3, 3); }
 const xgateTemplate = (id, name, klasse, x, y) => { return ntomTemplate(id, name, klasse, x, y); }
 const shadowXgateTemplate = (id, x, y) => { return schattenTemplate(id, x, y); }
 
-let activeTool = "select";
-let activeShadow = null;
 
 const resetButtons = () => {
     const buttons = document.getElementsByClassName("tool_button");
@@ -225,8 +230,16 @@ const toolButtonClicked = (tool) => {
 
 const keydownlistener = (event) => {
     if (event.key === "Escape") {
-        document.getElementById("qshadow").remove();
-        document.getElementById("tool_select").click();
+        if(buttonIds.slice(2).includes(activeTool)){
+            document.getElementById("qshadow").remove();
+            document.getElementById("tool_select").click();
+        }
+        if(currently_dragging !== null){
+            document.getElementById("tool_select").click();
+        }
+        if(current_wire_id !== null){
+            escape_Wire(event);
+        }
     }
 };
 
@@ -289,11 +302,6 @@ addEventListener("DOMContentLoaded", () => {
     const toolbox_grid = document.getElementById("toolbox_grid");
 
     // Event_Listener für die Buttons
-    const buttonIds = [
-        "select", "wire", "qinput", "identity", "hadamard",
-        "pauli_x", "pauli_y", "pauli_z", "cnot", "swap",
-        "toffoli", "fredkin", "measure", "xgate"
-    ];
 
     buttonIds.forEach(id => {
         document.getElementById(`tool_${id}`).addEventListener("click", () => toolButtonClicked(id));
@@ -396,6 +404,8 @@ function selecttool(x, y) {
  * }
  * Nodes haben immer nur den Port 0
  */
+const wire_mouse_offset_x = 0;
+const wire_mouse_offset_y = 10;
 
 function startWire(event, id) {
     //linker Mausklick
@@ -411,7 +421,7 @@ function startWire(event, id) {
         wire_drawing = false;
     }
     //Nun holen wir uns den Knoten Punkt
-    [rx, ry] = get_next_grid_point(event.offsetX, event.offsetY);
+    [rx, ry] = get_next_grid_point(event.offsetX + wire_mouse_offset_x, event.offsetY + wire_mouse_offset_y);
     target_element = event.target.id;
     //target input oder output?
     if (target_element.includes("input")) {
@@ -443,7 +453,7 @@ function draw_wire(event) {
         if (wire_exists !== null) {
             wire_exists.remove();
         }
-        [mx, my] = get_next_grid_point(event.offsetX, event.offsetY);
+        [mx, my] = get_next_grid_point(event.offsetX + wire_mouse_offset_x, event.offsetY + wire_mouse_offset_y);
         if (length % 2 === 0) {  //Wir sind im waagerechten Modus
             let new_x = mx;
             let wire = wireTemplate(current_wire_id, last_x, last_y, new_x, last_y);
@@ -470,14 +480,49 @@ function draw_wire(event) {
         //male fertigen Wire
         node_one = wire_nodes[current_wire_id][wire_nodes[current_wire_id].length - 2];
         node_two = wire_nodes[current_wire_id][wire_nodes[current_wire_id].length - 1];
-        wire = wireTemplate(`wired_${id_counter++}`, node_one.x, node_one.y, node_two.x, node_two.y);
+        wire_id = `wired_${id_counter++}`;
+        wire = wireTemplate(wire_id, node_one.x, node_one.y, node_two.x, node_two.y);
         toolbox_grid.appendChild(wire);
+        //append Wire to wires
+    if(Array.isArray(wires[current_wire_id])){
+        wires[current_wire_id].push(wire_id);
+    }else{
+        wires[current_wire_id] = [wire_id];
+    }
+
         //lösche alten Wire
         document.getElementById(current_wire_id).remove();
     }
 }
 
+function escape_Wire(event) {
+    wire_drawing = false;
+    delete_wire_part(current_wire_id);
+    delete_wire(current_wire_id);
+    current_wire_id = null;
+}
 
+function delete_wire_part(wire_id) {
+    wire = document.getElementById(wire_id);
+    wire.remove();
+    delete wire_nodes[wire_id];
+}
+
+function delete_wire(wire_id) {
+    // Überprüfen, ob wires[wire_id] existiert und ein Array ist
+    if (Array.isArray(wires[wire_id])) { 
+      // Iteriere über die Wire-IDs im Array
+      wires[wire_id].forEach(wireId => {
+        let wire = document.getElementById(wireId);
+        if (wire !== null) {
+          wire.remove();
+        }
+      });
+    }
+  
+    delete wires[wire_id];
+    delete wire_nodes[wire_id];
+  }
 
 function wiringtool() {
     console.log("Wire-Tool");
