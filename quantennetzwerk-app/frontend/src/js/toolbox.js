@@ -241,6 +241,11 @@ const keydownlistener = (event) => {
             escape_Wire(event);
         }
     }
+    if (event.key === "Delete") {
+        if (currently_dragging !== null) {
+            deleteTemplate(currently_dragging);
+        }
+    }
 };
 
 function set_raster_element(element, x, y) {
@@ -396,7 +401,7 @@ function selecttool(x, y) {
  *      ...
  *  ],
  * wire_{eine id}:[
- *      {type: "{output}", id: "{Nummer des Blocks}", "port": {Nummer}, "x": "{x}", "y": "{y}"},
+ *      {type: "{input}", id: "{Nummer des Blocks}", "port": {Nummer}, "x": "{x}", "y": "{y}"},
  *      {type: "{output}", id: "{Nummer des Blocks}", "port": {Nummer}, "x": "{x}", "y": "{y}"}
  *  ]    
  * ...
@@ -409,14 +414,17 @@ const wire_mouse_offset_y = 10;
 
 function startWire(event, id) {
     //linker Mausklick
+    let my_wire_id = null;
     if (event.type === "mousedown" && event.button == 0 && current_wire_id === null) {
         document.getElementById("tool_wire").click();
         current_wire_id = "wire_" + id_counter++;
+        my_wire_id = current_wire_id;
         wire_nodes[current_wire_id] = [];
         wire_drawing = true;
     }
     //Ein erneutes klicken auf den Input/Output beendet das zeichnen
     else if (event.type === "mousedown" && event.button == 0 && current_wire_id !== null) {
+        my_wire_id = current_wire_id;
         current_wire_id = null;
         wire_drawing = false;
     }
@@ -425,16 +433,16 @@ function startWire(event, id) {
     target_element = event.target.id;
     //target input oder output?
     if (target_element.includes("input")) {
-        wire_nodes[current_wire_id].push({ type: "input", id: target_element.split("_")[0], port: target_element.split("_")[2], x: rx, y: ry });
+        wire_nodes[my_wire_id].push({ type: "input", id: target_element.split("_")[0], port: target_element.split("_")[2], x: rx, y: ry });
     }
     else if (target_element.includes("output")) {
-        wire_nodes[current_wire_id].push({ type: "output", id: target_element.split("_")[0], port: target_element.split("_")[2], x: rx, y: ry });
+        wire_nodes[my_wire_id].push({ type: "output", id: target_element.split("_")[0], port: target_element.split("_")[2], x: rx, y: ry });
     }
     else {
         //Sollte nicht passieren
-        wire_nodes[current_wire_id].push({ type: "node", id: current_wire_part_id, port: 0, x: rx, y: ry });
+        wire_nodes[my_wire_id].push({ type: "node", id: current_wire_part_id, port: 0, x: rx, y: ry });
         console.log("Error: Wire-Node at" + rx + " " + ry);
-        console.log(current_wire_id);
+        console.log(my_wire_id);
         console.log("Ausirgend einem Grund ist ein Node entstanden, obwohl wir auf keinen Input/Output geklickt haben");
     }
     console.log(wire_nodes);
@@ -530,17 +538,80 @@ function wiringtool() {
 
 function placeTemplate(x, y) {
     // Neues QInput-Element erstellen
-    const chosenTemplate = eval(`${activeTool}Template`)(`${activeTool}_${id_counter++}`);
+    const box_id = `${activeTool}_${id_counter++}`;
+    const chosenTemplate = eval(`${activeTool}Template`)(`${box_id}`);
     set_raster_element(chosenTemplate, x, y);
 
     // Hinzufügen zum SVG
     toolbox_grid.appendChild(chosenTemplate);
     [rx, ry, _, _] = get_template_rect_dimensions(chosenTemplate);
-    blocks[chosenTemplate.id] = {
+    blocks[box_id] = {
         block: activeTool,
         x: rx,
         y: ry
     };
+}
+
+function searchBlocksTemplate(id) {
+    const entries = Object.entries(blocks);
+    for (let i = 0; i < entries.length; i++) {
+        const [key, value] = entries[i];
+        if (key.includes(id)) {
+            result = value;
+            break; // Schleife vorzeitig abbrechen
+        }
+    }
+}
+
+/**
+ * Sucht nach Drahtverbindungen, die mit der angegebenen ID übereinstimmen.
+ *
+ * Diese Funktion durchsucht das `wires`-Objekt und sammelt alle Draht-IDs,
+ * deren Typ "input" ist und deren ID mit der angegebenen ID übereinstimmt.
+ *
+ * @param {string} id - Die Block-ID, nach der gesucht werden soll.
+ * @returns {Array} - Ein Array von Draht-IDs, die mit der Block-ID übereinstimmen.
+ */
+function searchWireConnection(block_id) {
+    let wire_ids = [];
+    const entries = Object.entries(wires);
+    for (let i = 0; i < entries.length; i++) {
+        const [key, value] = entries[i];
+        input_node = value[0];
+        output_node = value[value.length - 1];
+        if (input_node.id === block_id || output_node.id === block_id) {
+            wire_ids.push(key);
+        }
+    }
+    return wire_ids;
+}
+
+function deleteTemplate(id) {
+    //Wir bekommen die bereinigte ID also eine Nummer
+    let element_id = searchBlocksTemplate(id);
+    if (id.includes("_") && buttonIds.some(str => id.includes(str))) {
+        //kann passieren, soll aber auch nicht ein Problem sein
+        element_id = id;
+        id = element_id.split("_")[1];
+    }else if (element_id === undefined) {
+        console.log("Element ist nicht in blocks");
+        return;
+    }else if (element_id === null) {
+        console.log("Element nicht gefunden");
+        return;
+    }
+    //Lösche das Element aus blocks
+    delete blocks[element_id];
+
+    //Lösche das Element aus dem SVG
+    document.getElementById(element_id).remove();
+    delete blocks[id];
+
+    //Lösche die Verbindungen
+    wire_ids = searchWireConnection(element_id);
+    wire_ids.forEach(wire_id => {
+        delete_wire(wire_id);
+    });
 }
 
 const mouse_debug_window_template = (x,y) => {
