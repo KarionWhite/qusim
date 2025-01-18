@@ -490,6 +490,8 @@ function draw_wire(event) {
         node_two = wire_nodes[current_wire_id][wire_nodes[current_wire_id].length - 1];
         wire_id = `wired_${id_counter++}`;
         wire = wireTemplate(wire_id, node_one.x, node_one.y, node_two.x, node_two.y);
+        //Wir brauchen noch die Verbindung Node zu Wire. Das ist wichtig für das Löschen
+        wire_nodes[current_wire_id].push({ type: "output", id: wire_id, node_one:node_one.id, node_two:node_two.id});
         toolbox_grid.appendChild(wire);
         //append Wire to wires
     if(Array.isArray(wires[current_wire_id])){
@@ -573,17 +575,17 @@ function searchBlocksTemplate(id) {
  * @returns {Array} - Ein Array von Draht-IDs, die mit der Block-ID übereinstimmen.
  */
 function searchWireConnection(block_id) {
-    let wire_ids = [];
-    const entries = Object.entries(wires);
+    let node_ids = [];
+    const entries = Object.entries(wire_nodes);
     for (let i = 0; i < entries.length; i++) {
         const [key, value] = entries[i];
         input_node = value[0];
         output_node = value[value.length - 1];
         if (input_node.id === block_id || output_node.id === block_id) {
-            wire_ids.push(key);
+            node_ids.push(key);
         }
     }
-    return wire_ids;
+    return node_ids;
 }
 
 function deleteTemplate(id) {
