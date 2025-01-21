@@ -654,3 +654,26 @@ function mouse_debug(event){
     }
     toolbox_grid.appendChild(mouse_debug_window_template(event.offsetX, event.offsetY));
 }
+
+// Getter Funktionen für blocks und wire_nodes für weitere Funktionalitäten
+
+/**
+ * Bekomme eine Kopie der im Arbeitsbereich erstellten Blockobjekte 
+ * @returns {blocks: {}} -> {blocks: 1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ, wire_nodes:[]}
+ */
+function getBlocks() {
+    const copy_Blocks = JSON.parse(JSON.stringify(blocks)); // Kopie des Blocks-Objekts und speicher es in einem neuen Objekt, damit wir nicht auf den gleichen Speicher verweisen können
+    return copy_Blocks;
+}
+
+/**
+ * Bekomme eine Kopie der wire_nodes-Objekte des Arbeitsbereichs. Diese Objekt wird verwendet, um die Verbindungen zu speichern und das SVG darauf aufzubauen.
+ * @returns {wire_nodes:[]} -> [{x1:0}, {}, ...]
+ */
+function getWireNodes() {
+    const copy_wires = JSON.parse(JSON.stringify(wire_nodes)); // Kopie des Wire-Objekts und speicher es in einem neuen Objekt, damit wir nicht auf den gleichen Speicher verweisen können
+    return copy_wires;
+}
+
+// Exportiere Getter Funktionen
+export { getBlocks, getWireNodes };
