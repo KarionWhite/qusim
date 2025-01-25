@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,6 +14,49 @@ import (
 // App struct
 type App struct {
 	ctx context.Context
+}
+
+// json type for the response
+type PostJSONData struct {
+	Task string          `json:"task"`
+	Data json.RawMessage `json:"data"` //Will be interpreted depending on the task
+}
+
+// GetJsonData represents the data that is sent to the frontend
+type GetJsonData struct {
+	Task    string      `json:"task"`
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data"`
+}
+
+// function for POST requests from the frontend
+func (a *App) PostRequest(data []byte) (string, error) {
+	//Unmarshal the data
+	var jsonData PostJSONData
+	err := json.Unmarshal(data, &jsonData)
+	if err != nil {
+		return "", fmt.Errorf("error while unmarshalling the data: %w", err)
+	}
+	//Switch for the different tasks
+	switch jsonData.Task {
+	case "example":
+		//Do something
+	default:
+		return "", fmt.Errorf("task not found")
+	}
+	return "", nil
+}
+
+// function for GET requests from the frontend
+func (a *App) GetRequest(task string) (string, error) {
+	//Switch for the different tasks
+	switch task {
+	case "example":
+		//Do something
+	default:
+		return "", fmt.Errorf("task not found")
+	}
+	return "", nil
 }
 
 // NewApp creates a new App application struct
