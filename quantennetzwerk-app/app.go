@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/KarionWhite/qusim/quantennetzwerk-app/taskhandler"
 
@@ -33,22 +34,19 @@ type GetJsonData struct {
 }
 
 // function for POST requests from the frontend
-func (a *App) PostRequest(data []byte) (string, error) {
-	//Unmarshal the data
-	log.Debug("app.go::PostRequest-> data: " + string(data))
+func (a *App) PostRequest(data PostJSONData) (string, error) {
 	var response GetJsonData
-	var jsonData PostJSONData
-	err := json.Unmarshal(data, &jsonData)
-	if err != nil {
-		jsonData.Task = "error" //Set the task to error so it will be go into the default case
-		log.Error("app.go::PostRequest-> error while unmarshalling the data: %w", err)
-	}
+	jsonData := PostJSONData(data)
 	//Switch for the different tasks
-	switch jsonData.Task {
+	switch strings.TrimSpace(jsonData.Task) {
 	case "example":
 		//Do something
-	case "hasChanged":
+	case "has_changed":
 		taskhandler.SetHasChanged(jsonData.Data)
+	case "set_project":
+		//taskhandler.SetProject()
+	case "save":
+		//taskhandler.Save()
 	case "error":
 		response.Success = false
 		response.Task = "unmarshalling_error"
@@ -67,22 +65,18 @@ func (a *App) PostRequest(data []byte) (string, error) {
 }
 
 // function for GET requests from the frontend
-func (a *App) GetRequest(data []byte) (string, error) {
-	//Switch for the different tasks
-	log.Debug("app.go::GetRequest-> data: " + string(data))
-	//Unmarshal the data
-	var jsonData GetJsonData
-	err := json.Unmarshal(data, &jsonData)
-	if err != nil {
-		jsonData.Task = "error" //Set the task to error so it will be go into the default case
-		log.Error("app.go::GetRequest-> error while unmarshalling the data: %w", err)
-	}
-
+func (a *App) GetRequest(data GetJsonData) (string, error) {
 	var response GetJsonData
 
-	switch jsonData.Task {
+	switch data.Task {
 	case "example":
 		//Do something
+	case "get_projects":
+		//Get list of projects
+	case "load":
+		//taskhandler.Load(data.Data)
+	case "get_quSim_data":
+		//taskhandler.GetQuSimData()
 	case "error":
 		response.Success = false
 		response.Task = "unmarshalling_error"
@@ -114,26 +108,16 @@ func (a *App) startup(ctx context.Context) {
 
 }
 
-// domReady is called after front-end resources have been loaded
-func (a *App) domReady(ctx context.Context) {
-	// Add your action here
-}
-
 // beforeClose is called when the application is about to quit,
 // either by clicking the window close button or calling runtime.Quit.
 // Returning true will cause the application to continue, false will continue shutdown as normal.
-func (a *App) beforeClose(ctx context.Context) (prevent bool) {
+func (a *App) beforeClose(_ context.Context) (prevent bool) {
+	if taskhandler.GetHasChanged() {
+		//save the changes
+		//TODO
+	}
+	//Shutdown Python-API
 	return false
-}
-
-// shutdown is called at application termination
-func (a *App) shutdown(ctx context.Context) {
-	// Perform your teardown here
-}
-
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
 
 func (a *App) RenderTemplate(templateName string, ctx *exec.Context) (string, error) {

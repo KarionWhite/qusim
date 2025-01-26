@@ -15,11 +15,12 @@ type has_Changed struct {
 }
 
 //Function to set the hasChanged variable
-func SetHasChanged(data json.RawMessage) {
+func SetHasChanged(data json.RawMessage) bool {
 	var hasChangedData has_Changed
 	err := json.Unmarshal(data, &hasChangedData)
 	if err != nil {
-		return
+		return false
 	}
 	hasChanged = hasChangedData.HasChanged
+	return true
 }
