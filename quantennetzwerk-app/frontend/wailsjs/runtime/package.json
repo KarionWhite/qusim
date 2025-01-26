@@ -4,7 +4,8 @@
   "description": "Wails Javascript runtime library",
   "main": "runtime.js",
   "types": "runtime.d.ts",
-  "scripts": {},
+  "scripts": {
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wailsapp/wails.git"
@@ -19,8 +20,5 @@
   "bugs": {
     "url": "https://github.com/wailsapp/wails/issues"
   },
-  "homepage": "https://github.com/wailsapp/wails#readme",
-  "dependencies": {
-    "@wailsapp/runtime": "file:"
-  }
+  "homepage": "https://github.com/wailsapp/wails#readme"
 }
