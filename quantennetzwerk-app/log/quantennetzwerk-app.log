@@ -1,0 +1,2 @@
+{"time":"2025-01-26T15:41:13.6166254+01:00","level":"INFO","prefix":"-","file":"app.go","line":"106","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-01-26T15:42:56.5162831+01:00","level":"INFO","prefix":"-","file":"app.go","line":"106","message":"app.go::NewApp-> Creating a new App"}

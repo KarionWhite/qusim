@@ -7,6 +7,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/KarionWhite/qusim/quantennetzwerk-app/taskhandler"
+
+	"github.com/labstack/gommon/log"
 	"github.com/nikolalohinski/gonja/v2"
 	"github.com/nikolalohinski/gonja/v2/exec"
 )
@@ -32,35 +35,75 @@ type GetJsonData struct {
 // function for POST requests from the frontend
 func (a *App) PostRequest(data []byte) (string, error) {
 	//Unmarshal the data
+	log.Debug("app.go::PostRequest-> data: " + string(data))
+	var response GetJsonData
 	var jsonData PostJSONData
 	err := json.Unmarshal(data, &jsonData)
 	if err != nil {
-		return "", fmt.Errorf("error while unmarshalling the data: %w", err)
+		jsonData.Task = "error" //Set the task to error so it will be go into the default case
+		log.Error("app.go::PostRequest-> error while unmarshalling the data: %w", err)
 	}
 	//Switch for the different tasks
 	switch jsonData.Task {
 	case "example":
 		//Do something
+	case "hasChanged":
+		taskhandler.SetHasChanged(jsonData.Data)
+	case "error":
+		response.Success = false
+		response.Task = "unmarshalling_error"
+		response.Data = "Error while unmarshalling the data! Please check the data!"
 	default:
-		return "", fmt.Errorf("task not found")
+		response.Success = false
+		response.Task = "Task not found"
+		response.Data = nil
 	}
-	return "", nil
+	//Marshal the response
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		log.Error("app.go::PostRequest-> error while marshalling the response: %w", err)
+	}
+	return string(jsonResponse), nil
 }
 
 // function for GET requests from the frontend
-func (a *App) GetRequest(task string) (string, error) {
+func (a *App) GetRequest(data []byte) (string, error) {
 	//Switch for the different tasks
-	switch task {
+	log.Debug("app.go::GetRequest-> data: " + string(data))
+	//Unmarshal the data
+	var jsonData GetJsonData
+	err := json.Unmarshal(data, &jsonData)
+	if err != nil {
+		jsonData.Task = "error" //Set the task to error so it will be go into the default case
+		log.Error("app.go::GetRequest-> error while unmarshalling the data: %w", err)
+	}
+
+	var response GetJsonData
+
+	switch jsonData.Task {
 	case "example":
 		//Do something
+	case "error":
+		response.Success = false
+		response.Task = "unmarshalling_error"
+		response.Data = "Error while unmarshalling the data! Please check the data!"
 	default:
-		return "", fmt.Errorf("task not found")
+		log.Error("app.go::GetRequest-> Task not found")
+		response.Success = false
+		response.Task = "Task not found"
+		response.Data = nil
 	}
-	return "", nil
+	//Marshal the response
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		log.Error("app.go::GetRequest-> error while marshalling the response: %w", err)
+	}
+	return string(jsonResponse), nil
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
+	log.Info("app.go::NewApp-> Creating a new App")
 	return &App{}
 }
 

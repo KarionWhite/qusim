@@ -1,8 +1,6 @@
 module quantennetzwerk-app
 
-go 1.22
-
-toolchain go1.23.4
+go 1.23.4
 
 require (
 	github.com/labstack/gommon v0.4.0
@@ -44,4 +42,7 @@ require (
 	golang.org/x/text v0.19.0 // indirect
 )
 
-// replace github.com/wailsapp/wails/v2 v2.9.2 => C:\Users\robin\go\pkg\mod
+//local
+require github.com/KarionWhite/qusim/quantennetzwerk-app/taskhandler v0.0.0
+
+replace github.com/KarionWhite/qusim/quantennetzwerk-app/taskhandler => ./taskhandler

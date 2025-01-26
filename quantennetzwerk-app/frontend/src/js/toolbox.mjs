@@ -1,3 +1,5 @@
+import { go_post } from "/js/go_com.mjs"
+
 let changes = {}
 let blocks = {}
 let wires = {}
@@ -14,6 +16,17 @@ const buttonIds = [
     "pauli_x", "pauli_y", "pauli_z", "cnot", "swap",
     "toffoli", "fredkin", "measure", "xgate"
 ];
+const task_has_changed = {
+    "task": "has_changed",
+    "data": {
+        "HasChanged": true
+    }
+}
+
+function has_changed() {
+    let k = go_post(task_has_changed);  // Sendet an den Server, dass sich etwas geändert hat
+    console.log(k);
+}
 /**
  * Ein allgemeines Gatter-Template für die Toolbox
  * du kannst die Menge der Inputs und Outputs angeben und diese werden automatisch generiert
@@ -275,8 +288,8 @@ function get_element_position(element) {
 
 function get_template_rect_dimensions(element) {
     if (element.getAttribute("class").includes("gate")) {
-        x = parseInt(element.getAttribute("transform").split("(")[1].split(",")[0]) || 0;
-        y = parseInt(element.getAttribute("transform").split(",")[1].split(")")[0]) || 0;
+        let x = parseInt(element.getAttribute("transform").split("(")[1].split(",")[0]) || 0;
+        let y = parseInt(element.getAttribute("transform").split(",")[1].split(")")[0]) || 0;
         const rect = element.querySelector(`#${element.id}_rect`);
         const width = parseInt(rect.getAttribute("width"));
         const height = parseInt(rect.getAttribute("height"));
@@ -364,13 +377,14 @@ function dragndrop(event, id) {
     //2. Click wir droppen das Element
     else if (event.type === "mousedown" && currently_dragging === id) {
         //updating blocks
-        [x, y] = get_element_position(document.getElementById(currently_dragging));
+        let [x, y] = get_element_position(document.getElementById(currently_dragging));
         blocks[currently_dragging] = {
-            block: blocks[currently_dragging].block,
+            block: currently_dragging,
             x: x,
             y: y
         };
         currently_dragging = null;
+        has_changed();
     }
     //1. Click wir heben das Element
     else if (event.type === "mousedown" && currently_dragging === null) {
@@ -427,6 +441,7 @@ function startWire(event, id) {
         my_wire_id = current_wire_id;
         current_wire_id = null;
         wire_drawing = false;
+        has_changed();  // Wir haben eine Verbindung erstellt
     }
     //Nun holen wir uns den Knoten Punkt
     [rx, ry] = get_next_grid_point(event.offsetX + wire_mouse_offset_x, event.offsetY + wire_mouse_offset_y);
@@ -546,12 +561,13 @@ function placeTemplate(x, y) {
 
     // Hinzufügen zum SVG
     toolbox_grid.appendChild(chosenTemplate);
-    [rx, ry, _, _] = get_template_rect_dimensions(chosenTemplate);
+    let [rx, ry, width, height] = get_template_rect_dimensions(chosenTemplate);
     blocks[box_id] = {
         block: activeTool,
         x: rx,
         y: ry
     };
+    has_changed();
 }
 
 function searchBlocksTemplate(id) {
@@ -614,6 +630,7 @@ function deleteTemplate(id) {
     wire_ids.forEach(wire_id => {
         delete_wire(wire_id);
     });
+    has_changed();
 }
 
 const mouse_debug_window_template = (x,y) => {
@@ -632,14 +649,14 @@ const mouse_debug_window_template = (x,y) => {
     rect.setAttribute("stroke-width", "1");
     g.appendChild(rect);
 
-    text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
     text.setAttribute("x", x + 50);
     text.setAttribute("y", y + 50);
     text.setAttribute("text-anchor", "middle");
     text.setAttribute("alignment-baseline", "middle");
     text.setAttribute("font-size", "20");
     text.setAttribute("fill", "black");
-    [rx, ry] = get_next_grid_point(x, y);
+    let [rx, ry] = get_next_grid_point(x, y);
     text.textContent = `${rx} ${ry}`;
     g.appendChild(text);
 
