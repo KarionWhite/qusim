@@ -17,6 +17,22 @@
                 "-o",
                 "${workspaceFolder}\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"
             ]
+        },
+        {
+            "label": "wails dev",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}\\quantennetzwerk-app"
+            },
+            "command": "wails",
+            "args": [
+                "dev",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
         }
     ]
 }

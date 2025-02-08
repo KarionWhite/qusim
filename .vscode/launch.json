@@ -13,7 +13,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Wails: Debug myproject",
+            "name": "Wails: Debug Backend",
             "type": "go",
             "request": "launch",
             "mode": "exec",
@@ -21,6 +21,17 @@
             "preLaunchTask": "build",
             "cwd": "${workspaceFolder}/quantennetzwerk-app",
             "env": {}
-          }
+        },
+        {
+            "name": "Wails: Debug Frontend",
+            "type": "msedge",
+            "request": "launch",
+            "url": "http://localhost:34115",
+            "webRoot": "G:\\\"Meine Ablage\"\\Uni\\QuantenNetze\\Qusim\\qusim\\",
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${workspaceFolder}\\quantennetzwerk-app\\frontend\\src\\*",
+                "webpack:///*": "${workspaceFolder}/quantennetzwerk-app/*"
+             }
+        }
     ]
 }

@@ -6,10 +6,6 @@ export function GetRequest(arg1) {
   return window['go']['main']['App']['GetRequest'](arg1);
 }
 
-export function Greet(arg1) {
-  return window['go']['main']['App']['Greet'](arg1);
-}
-
 export function PostRequest(arg1) {
   return window['go']['main']['App']['PostRequest'](arg1);
 }
