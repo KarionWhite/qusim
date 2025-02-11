@@ -22,14 +22,14 @@ body {
 }
 
 #toolbox {
-  height: 100vh;
+  height: 95vh;
   background-color: #e0e0e0;
   padding: 10px;
 }
 
 #circuit-area {
-  width: 100%;
-  height: 100vh;
-  border: 1px solid black;
-  overflow: auto;
+  width: 100%;  /* Beispielwert */
+  height: 98%; /* Beispielwert */
+  overflow: scroll;
+  position: relative;
 }

@@ -1,67 +1,78 @@
 /**
  * @module circuit_area
- * @description This module contains the class CircuitArea, which is responsible for the circuit area.
- * This means the background grid and the calculation of the grid coordinates for placing the wires and gates depending on the grid size and offset.
- * This class also contains the event listeners for the circuit area.
- * @requires toolState
- * 
+ * @description Creates a dynamic, scrollable dot grid using an optimized SVG pattern.
  */
-
-import { toolState } from "./toolState.mjs";
-
 class CircuitArea {
-    constructor(circuitAreaElement) {
-        this.circuitAreaElement = circuitAreaElement;
+    gridSpacing = 20;
+    xOffset = 10;
+    yOffset = 10;
+    patternSize = 500; // Puffer für das Grid
+
+    constructor() {
+        this.circuitAreaElement = document.getElementById('circuit-area');
         this.svgGrid = this.createGrid();
-        this.gridRect = this.svgGrid.querySelector('rect'); // Referenz auf das rect Element speichern
         this.circuitAreaElement.appendChild(this.svgGrid);
 
-        this.adjustGridSize(); // Initial Grid-Größe setzen
-        window.addEventListener('resize', this.adjustGridSize.bind(this)); // Event Listener für Fenster-Resize
+        window.addEventListener('resize', this.adjustGrid.bind(this));
+        this.circuitAreaElement.addEventListener('scroll', this.adjustGrid.bind(this), { passive: true });
+        this.adjustGrid(); // Initiales Grid
     }
 
     createGrid() {
-        const toolbox_grid = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        toolbox_grid.setAttribute("id", "toolbox_grid");
-        toolbox_grid.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        toolbox_grid.setAttribute("width", "100%"); // Temporär 100%, wird dynamisch angepasst
-        toolbox_grid.setAttribute("height", "100%"); // Temporär 100%, wird dynamisch angepasst
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("id", "toolbox_grid");
+        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
         const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-        const gridPattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-        gridPattern.setAttribute("id", "cross-pattern");
-        gridPattern.setAttribute("width", "20");
-        gridPattern.setAttribute("height", "20");
-        gridPattern.setAttribute("patternUnits", "userSpaceOnUse");
+        const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+        pattern.setAttribute("id", "dot-pattern");
+        pattern.setAttribute("width", this.gridSpacing);
+        pattern.setAttribute("height", this.gridSpacing);
+        pattern.setAttribute("patternUnits", "userSpaceOnUse");
 
-        const gridPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        gridPath.setAttribute("d", "M 10 8 L 10 12 M 8 10 L 12 10");
-        gridPath.setAttribute("stroke", "gray");
-        gridPath.setAttribute("stroke-width", "1");
-        gridPattern.appendChild(gridPath);
-        defs.appendChild(gridPattern);
-        toolbox_grid.appendChild(defs);
+        // Kreis zentriert IM PATTERN
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", this.gridSpacing / 2); //  Mittelpunkt
+        circle.setAttribute("cy", this.gridSpacing / 2);
+        circle.setAttribute("r", 1.5);
+        circle.setAttribute("fill", "gray");
+        pattern.appendChild(circle); // Kreis zum PATTERN hinzufügen
 
-        const gridRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        gridRect.setAttribute("width", "100%"); // Wird dynamisch angepasst
-        gridRect.setAttribute("height", "100%"); // Wird dynamisch angepasst
-        gridRect.setAttribute("fill", "url(#cross-pattern)");
-        toolbox_grid.appendChild(gridRect);
+        defs.appendChild(pattern);
+        svg.appendChild(defs);
 
-        return toolbox_grid;
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+		//Setze den Offset des Rechtecks.
+        rect.setAttribute("x", this.xOffset);
+        rect.setAttribute("y", this.yOffset);
+        rect.setAttribute("fill", "url(#dot-pattern)");
+        svg.appendChild(rect);
+        this.gridRect = rect;
+
+        return svg;
     }
 
-    adjustGridSize() {
-        const width = this.circuitAreaElement.offsetWidth; // Aktuelle Breite des circuit-area Elements
-        const height = this.circuitAreaElement.offsetHeight; // Aktuelle Höhe
+    adjustGrid() {
+        const width = this.circuitAreaElement.clientWidth + this.circuitAreaElement.scrollLeft + this.patternSize;
+        const height = this.circuitAreaElement.clientHeight + this.circuitAreaElement.scrollTop + this.patternSize;
 
-        this.svgGrid.setAttribute("width", width + "px"); // SVG Größe anpassen
+        this.svgGrid.setAttribute("width", width + "px");
         this.svgGrid.setAttribute("height", height + "px");
-        this.gridRect.setAttribute("width", width + "px"); // rect Größe anpassen
+        this.gridRect.setAttribute("width", width + "px");
         this.gridRect.setAttribute("height", height + "px");
+    }
 
-        console.log(`Gridgröße angepasst: Breite=<span class="math-inline">\{width\}px, Höhe\=</span>{height}px`); // Debug-Ausgabe
+
+    getNextGridPoint(x, y) {
+        const scrollLeft = this.circuitAreaElement.scrollLeft;
+        const scrollTop = this.circuitAreaElement.scrollTop;
+
+        const gridX = Math.round((x + scrollLeft - this.xOffset) / this.gridSpacing) * this.gridSpacing + this.xOffset;
+        const gridY = Math.round((y + scrollTop - this.yOffset) / this.gridSpacing) * this.gridSpacing + this.yOffset;
+
+        return [gridX, gridY];
     }
 }
 
-export { CircuitArea };
+const circuitArea = new CircuitArea();
+export { circuitArea };

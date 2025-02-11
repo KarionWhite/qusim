@@ -1,5 +1,3 @@
-
-
 const toolElements = document.querySelectorAll('[id^="tool_"]');
 const tools = Array.from(toolElements).map(element => element.id.slice(5));
 
@@ -18,6 +16,7 @@ class ToolState {
         this.leaveEvents = {}; // {tool: [callback, ...], ...}
         ToolState.toolState_instance = this;
         
+
         tools.forEach(toolName => {
             this[`to${toolName.charAt(0).toUpperCase() + toolName.slice(1)}`] = function() {
                 this.last_tool = this.tool;

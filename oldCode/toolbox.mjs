@@ -694,3 +694,129 @@ function getWireNodes() {
 
 // Exportiere Getter Funktionen
 export { getBlocks, getWireNodes };
+
+//Zwischenlager
+/**
+ * @module circuit_area
+ * @description This module contains the class CircuitArea, which is responsible for the circuit area.
+ *  This means the background grid and the calculation of the grid coordinates for placing the wires and gates
+ *  depending on the grid size and offset. This class also contains the event listeners for the circuit area.
+ * @requires toolState
+ */
+
+import { toolState } from "./toolState.mjs";
+
+class CircuitArea {
+    singleCircuitArea = null;
+    gridSpacing = 20; // Abstand zwischen den Grid-Punkten
+    xOffset = 10;     // X-Offset des Grids
+    yOffset = 10;     // Y-Offset des Grids
+
+    scroll_margin_create = 500; // Abstand zum Rand, ab dem ein neues Grid-Element erstellt wird (in Pixel) -  Wird jetzt nicht direkt verwendet, aber gut für spätere Erweiterungen
+    scroll_margin = 100;       // Abstand zum Rand, ab dem das Grid verschoben wird (in Pixel) - Wird jetzt nicht direkt verwendet
+    scroll_tollerance = 10;     // Tolleranz, ab der das Grid verschoben wird (in Pixel) - Wird jetzt nicht direkt verwendet
+    scroll_speed = 10;         // Geschwindigkeit, mit der das Grid verschoben wird (in Pixel) - Wird jetzt nicht direkt verwendet
+
+    constructor() {
+        if (this.singleCircuitArea) {
+            return CircuitArea.singleCircuitArea;
+        }
+        this.circuitAreaElement = document.getElementById('circuit-area');
+        this.svgGrid = this.createGrid();
+        this.gridRect = this.svgGrid.querySelector('rect'); // Referenz auf das rect Element
+        this.circuitAreaElement.appendChild(this.svgGrid);
+
+        this.circuitAreaElement.style.position = 'relative'; // Stelle sicher, dass der Container relativ positioniert ist
+        this.circuitAreaElement.style.overflow = 'auto';     // Aktiviere Scrollen im Container
+        this.svgGrid.style.position = 'absolute';            // Absolut positionieren innerhalb des Containers
+        this.svgGrid.style.top = '0';
+        this.svgGrid.style.left = '0';
+        this.svgGrid.style.zIndex = '-1'; // Hinter anderen Elementen
+
+        this.adjustGrid(); // Initiales Zeichnen
+        this.circuitAreaElement.addEventListener("scroll", this.adjustGrid.bind(this)); // Scroll-Event
+
+        // ResizeObserver für Änderungen an der Containergröße
+        const resizeObserver = new ResizeObserver(entries => {
+            this.adjustGrid();
+        });
+        resizeObserver.observe(this.circuitAreaElement);
+
+        CircuitArea.singleCircuitArea = this;
+    }
+
+    createGrid() {
+        const toolbox_grid = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        toolbox_grid.setAttribute("id", "toolbox_grid");
+        toolbox_grid.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        toolbox_grid.setAttribute("width", "100%"); // Temporär 100%, wird in adjustGrid angepasst
+        toolbox_grid.setAttribute("height", "100%"); // Temporär 100%, wird in adjustGrid angepasst
+
+
+        const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        const gridPattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+        gridPattern.setAttribute("id", "cross-pattern");
+        gridPattern.setAttribute("width", this.gridSpacing);
+        gridPattern.setAttribute("height", this.gridSpacing);
+        gridPattern.setAttribute("patternUnits", "userSpaceOnUse");
+
+        const gridPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        gridPath.setAttribute("d", `M ${this.gridSpacing / 2} 0 L ${this.gridSpacing / 2} ${this.gridSpacing} M 0 ${this.gridSpacing / 2} L ${this.gridSpacing} ${this.gridSpacing / 2}`); // Zentriertes Kreuz
+        gridPath.setAttribute("stroke", "gray");
+        gridPath.setAttribute("stroke-width", "1");
+        gridPattern.appendChild(gridPath);
+
+        defs.appendChild(gridPattern);
+        toolbox_grid.appendChild(defs);
+
+        const gridRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        // gridRect.setAttribute("width", "100%");  // Wird in adjustGrid angepasst
+        // gridRect.setAttribute("height", "100%"); // Wird in adjustGrid angepasst
+        gridRect.setAttribute("fill", "url(#cross-pattern)");
+        toolbox_grid.appendChild(gridRect);
+
+        return toolbox_grid;
+    }
+
+    adjustGrid() {
+        const visibleWidth = this.circuitAreaElement.clientWidth;
+        const visibleHeight = this.circuitAreaElement.clientHeight;
+        const scrollLeft = this.circuitAreaElement.scrollLeft;
+        const scrollTop = this.circuitAreaElement.scrollTop;
+    
+        const bufferX = this.gridSpacing;
+        const bufferY = this.gridSpacing;
+    
+        const rectWidth = visibleWidth + 2 * bufferX;
+        const rectHeight = visibleHeight + 2 * bufferY;
+        const rectX = scrollLeft - bufferX;
+        const rectY = scrollTop - bufferY;
+    
+        this.gridRect.setAttribute("width", rectWidth + "px");
+        this.gridRect.setAttribute("height", rectHeight + "px");
+        this.gridRect.setAttribute("x", rectX + "px");
+        this.gridRect.setAttribute("y", rectY + "px");
+    }
+
+
+
+    getNextGridPoint(x, y) {
+        const scrollLeft = this.circuitAreaElement.scrollLeft;
+        const scrollTop = this.circuitAreaElement.scrollTop;
+
+        const gridX = Math.round((x - this.xOffset) / this.gridSpacing) * this.gridSpacing + this.xOffset;
+        const gridY = Math.round((y - this.yOffset) / this.gridSpacing) * this.gridSpacing + this.yOffset;
+        return [gridX, gridY];
+    }
+
+    static getInstanz() {
+        if (this.singleCircuitArea) {
+            return CircuitArea.singleCircuitArea;
+        }
+        return new CircuitArea();
+    }
+}
+
+const circuitArea = CircuitArea.getInstanz();
+
+export { circuitArea };

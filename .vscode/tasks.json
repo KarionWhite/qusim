@@ -33,6 +33,11 @@
                 "isDefault": true
             },
             "problemMatcher": []
+        },
+        {
+            "label":"activate conda",
+            "type":"shell",
+            "command":"${workspaceFolder}"
         }
     ]
 }
