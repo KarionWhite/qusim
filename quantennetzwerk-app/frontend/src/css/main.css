@@ -33,3 +33,13 @@ body {
   overflow: scroll;
   position: relative;
 }
+
+#toolbox_grid{
+  position: absolute;
+  z-index: 0;
+}
+
+#shadowBlock {
+  position: relative;
+  z-index: 1;
+}

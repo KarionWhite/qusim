@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
 
         {
             "name": "Debug Fast API Server main.py",
@@ -21,17 +22,6 @@
             "preLaunchTask": "build",
             "cwd": "${workspaceFolder}/quantennetzwerk-app",
             "env": {}
-        },
-        {
-            "name": "Wails: Debug Frontend",
-            "type": "msedge",
-            "request": "launch",
-            "url": "http://localhost:34115",
-            "webRoot": "G:\\\"Meine Ablage\"\\Uni\\QuantenNetze\\Qusim\\qusim\\",
-            "sourceMapPathOverrides": {
-                "webpack:///src/*": "${workspaceFolder}\\quantennetzwerk-app\\frontend\\src\\*",
-                "webpack:///*": "${workspaceFolder}/quantennetzwerk-app/*"
-             }
         }
     ]
 }
