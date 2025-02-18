@@ -22,6 +22,23 @@
             "preLaunchTask": "build",
             "cwd": "${workspaceFolder}/quantennetzwerk-app",
             "env": {}
+        },
+        {
+            "name": "Wails: Debug Frontend",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:34115",
+            "sourceMaps": true,
+            "webRoot": "${workspaceFolder}/quantennetzwerk-app/frontend/",
+            "sourceMapPathOverrides": {
+                "webpack:///./wails/*": "${webRoot}/wails/*",
+                "webpack:///js/*": "${webRoot}/src/js/*",
+                "webpack:///./src/js/*": "${webRoot}/src/js/*",
+                "webpack:///./*": "${webRoot}/*",
+                "http://localhost:34115/*": "${webRoot}/*",
+                "http://localhost:34115/js/*": "${webRoot}/src/js/*"
+            },
+            "trace": true, // Detaillierte Debug-Informationen
         }
     ]
 }

@@ -16,6 +16,12 @@ class CircuitArea {
         window.addEventListener('resize', this.adjustGrid.bind(this));
         this.circuitAreaElement.addEventListener('scroll', this.adjustGrid.bind(this), { passive: true });
         this.adjustGrid(); // Initiales Grid
+        this.circuitAreaElement.addEventListener("click", (event) => {
+            if(event.button === 0) {
+                const [gridX, gridY] = this.getNextGridPoint(event.clientX, event.clientY);
+                console.log(`Click at ${gridX}, ${gridY}`);
+            }
+        });
     }
 
     createGrid() {

@@ -214,6 +214,21 @@ class QBlock {
 
     /**
      * 
+     * @param {number} x 
+     * @param {number} y 
+     * @returns {null | String} null wenn kein Block getroffen wurde, sonst die ID des getroffenen Ports
+     */
+    static hitInputOutput(x,y){
+        for (let BlockID in QBlock.blocks) {
+            const block = QBlock.blocks[BlockID];
+            const hit = block.checkInputOutput(x,y);
+            if(hit) return hit;
+        }
+        return null;
+    }
+
+    /**
+     * 
      * @param {SVGElement || QBlock} collBlock 
      * @returns 
      */
@@ -363,9 +378,8 @@ class QBlock {
         }
 
         const element = inputIndex >= 0
-            ? block.template.querySelector(`#${blockId}_input_${inputIndex}`)
-            : block.template.querySelector(`#${blockId}_output_${outputIndex}`);
-
+            ? block.template.querySelector(`#input_${blockId}_${inputIndex}`)
+            : block.template.querySelector(`#output_${blockId}_${outputIndex}`);
         if (element) {
             element.setAttribute("fill", connect ? "green" : "red");
             if (inputIndex >= 0) {
@@ -484,6 +498,64 @@ class QBlock {
         return {x: this.x, y: this.y, width: width, height: height};
     }
 
+    /**
+     * Gibt die Position des Inputs oder Outputs zurück
+     * @param {string} inoutID
+     * @returns {{x: number, y: number}}
+        */	
+    getQBlockPortPosition(portID,scrollLeft,scrollTop){
+        const match = portID.match(/(input|output)_(\d+)_(\d+)/);
+        if (!match) {
+            console.error("Invalid port ID format:", portID);
+            return [0, 0];
+        }
+        const [, portType, blockIdStr, portIndexStr] = match;
+        const portIndex = parseInt(portIndexStr, 10);
+    
+        const portElement = document.getElementById(portID);
+        if (!portElement) {
+            console.error("Port element not found for ID:", portID);
+            return [0, 0];
+        }
+    
+        const portRect = portElement.getBoundingClientRect();
+    
+        let x;
+        if (portType === "input") {
+            x = portRect.left + scrollLeft + (portRect.width / 2);
+        } else { // output
+            x = portRect.left + scrollLeft + portRect.width;
+        }
+        const y = portRect.top + scrollTop + (portRect.height / 2);
+    
+        return [x, y];
+    }
+
+    checkInputOutput(x,y){
+        const inputs = this.template.querySelectorAll(`[id^="input_${this.id}_"]`);
+        const outputs = this.template.querySelectorAll(`[id^="output_${this.id}_"]`);
+        for(let i = 0; i < inputs.length; i++){
+            const input = inputs[i];
+            const rect = input.getBoundingClientRect();
+            console.log(rect);
+            if(x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom){
+                return `input_${this.id}_${i}`;
+            }
+        }
+        for(let i = 0; i < outputs.length; i++){
+            const output = outputs[i];
+            const rect = output.getBoundingClientRect();
+            console.log(rect);
+            if(x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom){
+                return `output_${this.id}_${i}`;
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param {string} message 
+     */
     showError(message){
         window.alert(message);
     }

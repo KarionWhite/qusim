@@ -43,3 +43,8 @@ body {
   position: relative;
   z-index: 1;
 }
+
+.wire {
+  position: absolute;
+  z-index: 2;
+}
