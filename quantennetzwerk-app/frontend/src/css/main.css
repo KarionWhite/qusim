@@ -44,6 +44,10 @@ body {
   z-index: 1;
 }
 
+#run_simulation{
+  background-color: green;
+}
+
 .wire {
   position: absolute;
   z-index: 2;

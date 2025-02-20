@@ -66,7 +66,7 @@ export default class QWire {
             console.log("no listeners for wireClick");
         }
         return [line,hitbox,hitbox2];
-    }
+    };
 
     /**
      * @constructor
@@ -81,7 +81,7 @@ export default class QWire {
         this.direction = direction;
         this.element = QWire.wireTemplate(this.id, x, y, direction);
         this.shadow = shadow;
-    }
+    };
 
     /**
      * @param {SVGElement} parent 
@@ -91,16 +91,20 @@ export default class QWire {
         if(!this.shadow){
             parent.appendChild(this.element[2]);
             parent.appendChild(this.element[1]);
-        }    
-    }
+        };    
+    };
 
+    /**
+     * This method removes the wire from the parent element.
+     * @param {SVGElement} parent the parent element from which the wire is to be removed
+     */
     remove(parent){
         parent.removeChild(this.element[0]);
         if(!this.shadow){
             parent.removeChild(this.element[1]);
             parent.removeChild(this.element[2]);
-        }
-    }
+        };
+    };
 
     /**
      * This method moves the wire to the given position.
@@ -114,7 +118,7 @@ export default class QWire {
         this.y = y;
         this.element = QWire.wireTemplate(this.id, this.x, this.y, this.direction, this.shadow);
         this.place(parent);
-    }
+    };
 
     /**
      * This method changes the direction of the wire. AKA length
@@ -126,12 +130,29 @@ export default class QWire {
         this.direction = direction;
         this.element = QWire.wireTemplate(this.id, this.x, this.y, this.direction, this.shadow);
         this.place(parent);
-    }
+    };
 
     shadow2wire(parent){
+        this.remove(parent);
         this.shadow = false;
         this.element = QWire.wireTemplate(this.id, this.x, this.y, this.direction, this.shadow);
         this.place(parent);
         return this;
-    }
+    };
+
+    highlight(){
+        this.element[0].setAttribute("stroke", "red");
+    };
+
+    unhighlight(){
+        this.element[0].setAttribute("stroke", "black");
+    };
+
+    selected(){
+        this.element[0].setAttribute("stroke", "blue");
+    };
+
+    unselected(){
+        this.element[0].setAttribute("stroke", "black");
+    };
 };

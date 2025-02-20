@@ -37,12 +37,16 @@ class QWireSession {
          * @type QWire
          */
         this.currentWire = null;
+        this.currentSessionID = null;
     }
 
+
     findSessionByWire(wire_id) {
-        for (const session of this.sessions) {
-            for (const wire of session.wires) {
-                if (wire.id === wire_id) {
+        for (const session in this.sessions) {
+            const wires = this.sessions[session].wires;
+            if(!wires)continue;
+            for (const wire of wires) {
+                if (wire.id == wire_id) {
                     return session;
                 }
             }
@@ -51,8 +55,21 @@ class QWireSession {
     }
 
     findSessionByQbit(qbit_id) {
-        for (const session of this.sessions) {
+        for (const session in this.sessions) {
             if (session.qbit_start.id === qbit_id || session.qbit_end.id === qbit_id) {
+                return session;
+            }
+        }
+        return null;
+    }
+
+    findSessionByConnectedQBlock(qblock_id) {
+        const [, qblock] = qblock_id.split("_");
+        for (const session in this.sessions) {
+            const [qbit_start, qbit_end] = this.sessionInOut(session);
+            const [, qbit_start_id,] = qbit_start.id.split("_");
+            const [, qbit_end_id,] = qbit_end.id.split("_");
+            if (qblock === qbit_start_id || qblock === qbit_end_id) {
                 return session;
             }
         }
@@ -66,12 +83,14 @@ class QWireSession {
         session.wires = [];
         session.qbit_end = null;
         this.sessions[session.id] = session;
+        this.currentSessionID = session.id;
         return session;
     }
 
     endSession(qbit) {
         const session = this.sessions[this.nextId - 1];
         session.qbit_end = qbit;
+        this.currentSessionID = null;
     }
 
     newWire(x, y, direction) {
@@ -112,15 +131,42 @@ class QWireSession {
         }
     }
 
-    destroySession(session){
+    sessionInOut(session){
         if(this.sessions.session){
-            session.wires.forEach(wire => {
-                wire.element.remove();
+            return [this.sessions.session.qbit_start, this.sessions.session.qbit_end];
+        }
+        return [null, null];
+    }
+
+    highlightSession(session){
+        const mySession = this.sessions[session];
+        if(mySession){
+            mySession.wires.forEach(wire => {
+                wire.highlight();
             });
-            session = null;
         }
     }
 
+    unhighlightSession(session){
+        const mySession = this.sessions[session];
+        if(mySession){
+            mySession.wires.forEach(wire => {
+                wire.unhighlight();
+            });
+        }
+    }
+
+    destroySession(session){
+        if(this.sessions[session]){
+            this.sessions[session].wires.forEach(wire => {
+                wire.remove(this.parent);
+            });
+            this.sessions[session] = null;
+        }
+        if(!this.currentWire)return;
+        this.currentWire.remove(this.parent);
+        this.currentWire = null;
+    }
 
 }
 

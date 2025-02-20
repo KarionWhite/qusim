@@ -29,7 +29,6 @@
                             <li><a class="dropdown-item" href="#" id="new_project">Neues Projekt</a></li>
                             <li><a class="dropdown-item" href="#" id="open_project">Projekt öffnen</a></li>
                             <li><a class="dropdown-item" href="#" id="save_project">Projekt speichern</a></li>
-                            <li><a class="dropdown-item" href="#" id="save_project_under">Projekt speichern unter</a>
                             </li>
                         </ul>
                     </div>
@@ -48,6 +47,10 @@
                         </ul>
                     </div>
                 </li>
+                <li>
+                    <button class="btn btn-secondary" type="button" id="run_simulation">
+                        Simulation starten</button>
+                </li>
             </ul>
         </div>
     </div>
@@ -59,6 +62,10 @@
             <div id="toolbox">
                 <h5>Toolbox</h5>
                 <div class="list-group">
+                    <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
+                        id="tool_info">
+                        Info
+                    </button>
                     <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
                         id="tool_select">
                         Maus
@@ -74,11 +81,11 @@
                             id="tool_identity">Identity</button>
                         <button type="button" class="list-group-item list-group-item-action tool_button"
                             id="tool_hadamard">Hadamar</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button" 
+                        <button type="button" class="list-group-item list-group-item-action tool_button"
                             id="tool_pauli_x">Pauli X</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button" 
+                        <button type="button" class="list-group-item list-group-item-action tool_button"
                             id="tool_pauli_y">Pauli Y</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button" 
+                        <button type="button" class="list-group-item list-group-item-action tool_button"
                             id="tool_pauli_z">Pauli Z</button>
                         <button type="button" class="list-group-item list-group-item-action tool_button"
                             id="tool_cnot">CNOT</button>
@@ -90,15 +97,15 @@
                             id="tool_fredkin">Fredkin</button>
                         <button type="button" class="list-group-item list-group-item-action tool_button"
                             id="tool_measure">Measure</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button" 
-                            id="tool_xgate" hidden>XGate</button>
+                        <button type="button" class="list-group-item list-group-item-action tool_button" id="tool_xgate"
+                            hidden>XGate</button>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-10">
             <div id="circuit-area">
-                
+
             </div>
         </div>
     </div>

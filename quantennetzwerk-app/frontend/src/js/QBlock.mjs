@@ -429,14 +429,10 @@ class QBlock {
              * @type {SVGElement}
              */
             this.template = QBlock[kind + "Template"](this.id,false);
-            const numInputs = this.template.querySelectorAll('[id$="_input_0"]').length > 0
-                ? parseInt(this.template.querySelector('[id$="_input_0"]').id.split("_")[0].match(/\d+$/)[0]) + 1
-                : 0;
-            const numOutputs = this.template.querySelectorAll('[id$="_output_0"]').length > 0
-                ? parseInt(this.template.querySelector('[id$="_output_0"]').id.split("_")[0].match(/\d+$/)[0]) + 1
-                : 0;
-
-
+            const Inputs = this.template.querySelector(`#svg_${this.id}`)  .querySelectorAll(`[id^="input_${this.id}_"]:not([id$="_hitbox"])`);
+            const Outputs = this.template.querySelector(`#svg_${this.id}`)  .querySelectorAll(`[id^="output_${this.id}_"]:not([id$="_hitbox"])`)
+            const numInputs = Inputs.length;
+            const numOutputs = Outputs.length;
             this.inputWireIds = new Array(numInputs).fill(null);
             this.outputWireIds = new Array(numOutputs).fill(null);
 

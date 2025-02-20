@@ -35,6 +35,8 @@ class ActionHandler {
         this.draggedQBlock = null;
         this.wiring = false;
         this.wiring_horizontal = false;
+        this.selectedWire = null;
+        this.wireSessionState = null; //Sicherung der Wire sub Session for Undo
 
         // Registriere Listener für die Events
         globalEvents.on("startDrag", this.startDrag.bind(this));
@@ -72,7 +74,7 @@ class ActionHandler {
     }
 
     removeShadowBlock(event) {
-        if(this.shadow){
+        if (this.shadow) {
             this.shadow.remove();
             document.removeEventListener("mousemove", this.shadowDrag);
         }
@@ -80,7 +82,7 @@ class ActionHandler {
 
     shadowBlock(event) {
         const tool = toolState.getTool();
-        if(QBlock.isQBlock(tool)){
+        if (QBlock.isQBlock(tool)) {
             this.shadow = QBlock.createShadowBlock(tool);
             this.circuit_area.appendChild(this.shadow);
             document.addEventListener("mousemove", this.shadowDrag.bind(this));
@@ -96,9 +98,9 @@ class ActionHandler {
      */
     shadowDrag(event) {
         const tool = toolState.getTool();
-        if(QBlock.isQBlock(tool)){
+        if (QBlock.isQBlock(tool)) {
             const shadowBlock = this.shadow;
-            if(shadowBlock){
+            if (shadowBlock) {
                 const [gridX, gridY] = circuitArea.getNextGridPoint(event.clientX - ActionHandler.blockOffsetX, event.clientY - ActionHandler.blockOffsetY);
                 shadowBlock.style.transform = `translate(${gridX + 10}px, ${gridY + 5}px)`;
             }
@@ -106,7 +108,7 @@ class ActionHandler {
     }
 
     stopshadowDrag(event) {
-        if(this.shadow && (event.key === "Escape" || event.code === "Escape")){
+        if (this.shadow && (event.key === "Escape" || event.code === "Escape") && toolState.getTool() !== "wire") {
             this.shadow.remove();
             document.removeEventListener("mousemove", this.shadowDrag);
             document.removeEventListener("keydown", this.stopshadowDrag);
@@ -114,32 +116,32 @@ class ActionHandler {
         }
     }
 
-    createBlock(event){
-        if(event.button !== 0) return; // Nur linke Maustaste
+    createBlock(event) {
+        if (event.button !== 0) return; // Nur linke Maustaste
         const [gridX, gridY] = circuitArea.getNextGridPoint(event.clientX - ActionHandler.blockOffsetX, event.clientY - ActionHandler.blockOffsetY);
         const x = gridX + 10;
-        const y = gridY + 5;   
+        const y = gridY + 5;
         //prüfe Hintergrund
         const possibleCollBlock = QBlock.checkCollision(this.shadow);
-        if(possibleCollBlock){
+        if (possibleCollBlock) {
             //change to edit mode
             //toolState.toSelect();
             return;
         }
         const tool = toolState.getTool();
-        if(QBlock.isQBlock(tool)){
+        if (QBlock.isQBlock(tool)) {
             const qblock = new QBlock(tool);
             qblock.place(this.circuit_area, x, y);
         }
     }
 
     startDrag(event, id) {
-        if (event.button !== 0) return; // Nur linke Maustaste
-    
+        if (event.button !== 0 || this.wiring || toolState.getTool() === "info") return; // Nur linke Maustaste
+
         if (this.draggedQBlock === null) {
             this.draggedQBlock = QBlock.getBlockById(id);
             if (!this.draggedQBlock) return;
-    
+
             this.startDragX = this.draggedQBlock.x;
             this.startDragY = this.draggedQBlock.y;
 
@@ -153,6 +155,7 @@ class ActionHandler {
             event.preventDefault();
         }
         else {
+            ActionHandler.__deleteAttachedWires(this.draggedQBlock);
             document.removeEventListener("mousemove", this.dragMove);
             document.removeEventListener("keydown", this.dragKeydown);
             document.removeEventListener("dblclick", this.dragKeydown);
@@ -167,15 +170,16 @@ class ActionHandler {
     dragMove(event) {
         if (this.draggedQBlock) {
             const [gridX, gridY] = circuitArea.getNextGridPoint(event.clientX - this.mouseOffsetX, event.clientY - this.mouseOffsetY);
-            const x = gridX +10;
-            const y = gridY +5;   
-            this.draggedQBlock.place(this.circuit_area,x, y);
+            const x = gridX + 10;
+            const y = gridY + 5;
+            this.draggedQBlock.place(this.circuit_area, x, y);
         }
     }
 
 
     dragKeydown(event) {
         if ((event.key === "Delete" || event.code === "KeyD" || event.type === "dblclick") && this.draggedQBlock) {
+            ActionHandler.__deleteAttachedWires(this.draggedQBlock);
             this.draggedQBlock.unhighlight();
             this.draggedQBlock.destroy(this.circuit_area);
             document.removeEventListener("mousemove", this.dragMove);
@@ -185,7 +189,7 @@ class ActionHandler {
             this.mouseOffsetY = 0;
             this.draggedQBlock = null;
         }
-        if((event.key === "Escape" || event.code === "Escape") && this.draggedQBlock){
+        if ((event.key === "Escape" || event.code === "Escape") && this.draggedQBlock) {
             this.draggedQBlock.unhighlight();
             this.draggedQBlock.place(this.circuit_area, this.startDragX, this.startDragY);
             document.removeEventListener("mousemove", this.dragMove);
@@ -198,48 +202,51 @@ class ActionHandler {
     }
 
     startWire(event, portId) { //Muss noch angepasst werden
-        if (event.button !== 0) return; // Nur linke Maustaste
-        if(this.wiring_horizontal){ //Wir müssen Horizontal starten und enden.
+        if (event.button !== 0 && this.draggedQBlock === null && !toolState.getTool() === "info") return; // Nur linke Maustaste
+        if (this.wiring_horizontal) { //Wir müssen Horizontal starten und enden.
             this.wiring_horizontal = true;
         }
         toolState.toWire();
-        const [type,blockIdnum,portnum] = portId.split("_");
+        const [type, blockIdnum, portnum] = portId.split("_");
         const block = QBlock.getBlockById(blockIdnum);
         if (!block) {
-            console.error(`Block with id ${blockIdnum} not found with ${portId}`);   
+            console.error(`Block with id ${blockIdnum} not found with ${portId}`);
             return;
         }
-        let [x,y] = block.getQBlockPortPosition(portId, this.circuit_area.scrollLeft, this.circuit_area.scrollTop);
-        [x,y] = circuitArea.getNextGridPoint(x - ActionHandler.circuitAreaOffsetX, y - ActionHandler.circuitAreaOffsetY);
+        let [x, y] = block.getQBlockPortPosition(portId, this.circuit_area.scrollLeft, this.circuit_area.scrollTop);
+        [x, y] = circuitArea.getNextGridPoint(x - ActionHandler.circuitAreaOffsetX, y - ActionHandler.circuitAreaOffsetY);
         console.log(`Start Wire at Port: ${portId} with event: ${event.type} at x: ${x} and y: ${y}`)
         this.mouseOffsetX = event.clientX - ActionHandler.circuitAreaOffsetX;
         this.mouseOffsetY = event.clientY - ActionHandler.circuitAreaOffsetY;
-        if(!this.wiring){
+        if (!this.wiring) {
             this.wiring = true;
-            qWireSession.startSession(this, portId);
-            if(type === "input"){
+            qWireSession.startSession(portId);
+            if (type === "input") {
                 this.wiring_input = true;
-                qWireSession.newshadowWire(x, y, [-1,0]);
-                QBlock.connectInput(blockIdnum, portnum,qWireSession.currentWire.id);
-            }else if(type === "output"){
+                qWireSession.newshadowWire(x, y, [-1, 0]);
+                QBlock.connectInput(blockIdnum, portnum, qWireSession.currentWire.id);
+            } else if (type === "output") {
                 this.wiring_input = false;
-                qWireSession.newshadowWire(x, y, [1,0]);
-                QBlock.connectOutput(blockIdnum, portnum,qWireSession.currentWire.id);
+                qWireSession.newshadowWire(x, y, [1, 0]);
+                QBlock.connectOutput(blockIdnum, portnum, qWireSession.currentWire.id);
             }
             qWireSession.placeCurrentWire();
             document.addEventListener("mousemove", this.boundWireDrawing);
             document.addEventListener("mouseup", this.changeWireDirection);
-        }else{
+            document.addEventListener("keydown", this.wiringKeydown);
+        } else {
             this.wiring = false;
+            this.wiring_horizontal = false;
             document.removeEventListener("mousemove", this.boundWireDrawing);
             document.removeEventListener("mouseup", this.changeWireDirection);
-            if(type === "input"){
-                QBlock.connectInput(blockIdnum, portnum,qWireSession.currentWire.id);
-            }else if(type === "output"){
-                QBlock.connectOutput(blockIdnum, portnum,qWireSession.currentWire.id);
+            document.removeEventListener("keydown", this.wiringKeydown);
+            if (type === "input") {
+                QBlock.connectInput(blockIdnum, portnum, qWireSession.currentWire.id);
+            } else if (type === "output") {
+                QBlock.connectOutput(blockIdnum, portnum, qWireSession.currentWire.id);
             }
             qWireSession.shadow2wire();
-            qWireSession.endSession(this, portId);
+            qWireSession.endSession(portId);
             toolState.toSelect();
         }
     }
@@ -250,64 +257,153 @@ class ActionHandler {
             event.clientY - ActionHandler.circuitAreaOffsetY - this.mouseOffsetY - 10);
         let x = gridX + 10;
         let y = gridY + 10;
-        if(this.wiring_horizontal){
+        if (this.wiring_horizontal) {
             y = 0;
-        }else{
+        } else {
             x = 0;
         }
-        qWireSession.shadowFollow([x,y]);
+        qWireSession.shadowFollow([x, y]);
     }
 
     changeWireDirection = (event) => {
-        if(event.type === "mouseup" && event.button !== 0) return; // Nur linke Maustaste
-        let newdirection = [0,0];
-        if(this.wiring_horizontal){
+        if (event.type === "mouseup" && event.button !== 0) return; // Nur linke Maustaste
+        let newdirection = [0, 0];
+        if (this.wiring_horizontal) {
             this.wiring_horizontal = false;
             this.mouseOffsetX = event.clientX - ActionHandler.circuitAreaOffsetX + 10; //keine Ahnung warum das +10 sein muss
-            newdirection = [0,1];
-        }else{
+            newdirection = [0, 1];
+        } else {
             this.wiring_horizontal = true;
             this.mouseOffsetY = event.clientY - ActionHandler.circuitAreaOffsetY;
-            newdirection = [1,0];
+            newdirection = [1, 0];
         }
         const x = qWireSession.currentWire.x + qWireSession.currentWire.direction[0];
         const y = qWireSession.currentWire.y + qWireSession.currentWire.direction[1];
 
-        //Treffe ich auf einen In-/Output?
-        console.log(`Change Wire Direction at x: ${x} and y: ${y}`);
-        const portID = QBlock.hitInputOutput(x,y);
-        if(portID){
+        /**
+         * Tolle Idee aber sehr buggy
+        const possibleX = x + ActionHandler.blockOffsetX;
+        const possibleY = y + ActionHandler.blockOffsetY;
+        console.log(`Change Wire Direction a possibleX: ${possibleX} and possibleY: ${possibleY}`);
+        const portID = QBlock.hitInputOutput(possibleX, possibleY);
+        if (portID) {
+            console.log(`Hit at Port: ${portID}`);
             document.getElementById(portID).click();
             return;
         }
+        */
+
         qWireSession.shadow2wire()
-        qWireSession.newshadowWire(x,y,newdirection);
+        qWireSession.newshadowWire(x, y, newdirection);
         qWireSession.placeCurrentWire();
     }
+
+
 
     wireNodeClick(event, wireId) {
         console.log(`Wire Node Clicked: ${wireId}`);
         if (event.button !== 0) return; // Nur linke Maustaste
-        if (this.wiring) {
-            qWireSession.shadow2wire();
-            qWireSession.endSession(this, wireId);
+        //TODO: Implementieren der Drag Funktion für Wire Nodes
+    }
+
+    wireClick = (event, wireId) => {
+        console.log(`wireClick: ${wireId}`);
+        if (event.button !== 0) return; // Nur linke Maustaste
+        if (toolState.getTool() === "info") {
+            const clicked_session = qWireSession.findSessionByWire(wireId.split("_")[1]);
+            if (this.selectedWire !== null && this.selectedWire.id !== clicked_session.id) {
+                qWireSession.unhighlightSession(this.selectedWire);
+                this.selectedWire = clicked_session;
+                qWireSession.highlightSession(clicked_session);
+                return;
+            } else if (this.selectedWire !== null && this.selectedWire === clicked_session) {
+                qWireSession.unhighlightSession(clicked_session);
+                this.selectedWire = null;
+                return;
+            }
+            qWireSession.highlightSession(clicked_session);
+            this.selectedWire = clicked_session;
+            return;
+        }
+        toolState.toWire();
+
+
+    }
+
+    wiringKeydown = (event) => {
+        if (event.key === "Escape" || event.code === "Escape") {
             this.wiring = false;
             document.removeEventListener("mousemove", this.boundWireDrawing);
             document.removeEventListener("mouseup", this.changeWireDirection);
+            document.removeEventListener("wiringKeydown", this.wiringKeydown);
+            const currentWireSession = qWireSession.sessions[qWireSession.currentSessionID];
+            if (currentWireSession.qbit_start !== null) {
+                ActionHandler.__diconnectWire(currentWireSession.qbit_start);
+            }
+            if (currentWireSession.qbit_end !== null) {
+                ActionHandler.__diconnectWire(currentWireSession.qbit_end);
+            }
+            qWireSession.destroySession(qWireSession.currentSessionID);
+            toolState.toSelect();
+        }
+    };
+
+    wireKeydown = (event, wireId) => {
+        if (toolState.getTool() !== "wire") return; // Nur wenn ich im Wire Tool bin
+        if (this.selectedWire === null) return; // Nur wenn ich eine Wire ausgewählt habe
+        if (event.key === "Delete" || event.code === "KeyD") {
+
+        } else if (event.key === "Escape" || event.code === "Escape") {
+            this.selectedWire.unhighlight();
+            this.selectedWire = null;
             toolState.toSelect();
         }
     }
 
-    wireClick(event, wireId) {
-        console.log(`wireClick: ${wireId}`);
-        if (event.button !== 0) return; // Nur linke Maustaste
-        if (this.wiring) {
-            qWireSession.shadow2wire();
-            qWireSession.endSession(this, wireId);
-            this.wiring = false;
-            document.removeEventListener("mousemove", this.boundWireDrawing);
-            document.removeEventListener("mouseup", this.changeWireDirection);
-            toolState.toSelect();
+    static __diconnectWire(QBlock_Port) {
+        const [, blockId, portnum] = QBlock_Port.split("_");
+        const block = QBlock.getBlockById(blockId);
+        if (!block) {
+            console.error(`Block with id ${blockId} not found with ${QBlock_Port}`);
+            return;
+        }
+        if (QBlock_Port.includes("input")) {
+            QBlock.disconnectInput(blockId, portnum);
+        } else if (QBlock_Port.includes("output")) {
+            QBlock.disconnectOutput(blockId, portnum);
+        }
+    }
+
+    static __deleteAttachedWires(qBlock) {
+        const inputs = qBlock.inputWireIds;
+        const outputs = qBlock.outputWireIds;
+        for (const input of inputs) {
+            if(!input)continue;
+            const session = qWireSession.sessions[qWireSession.findSessionByWire(input)];
+            if (!session) continue;
+            const qStart = session.qbit_start;
+            const qEnd = session.qbit_end;
+            if (qStart !== null) {
+                ActionHandler.__diconnectWire(qStart);
+            }
+            if (qEnd !== null) {
+                ActionHandler.__diconnectWire(qEnd);
+            }
+            qWireSession.destroySession(session.id);
+        }
+        for (const output of outputs) {
+            if(!output)continue;
+            const session = qWireSession.sessions[qWireSession.findSessionByWire(output)];
+            if (!session) continue;
+            const qStart = session.qbit_start;
+            const qEnd = session.qbit_end;
+            if (qStart !== null) {
+                ActionHandler.__diconnectWire(qStart);
+            }
+            if (qEnd !== null) {
+                ActionHandler.__diconnectWire(qEnd);
+            }
+            qWireSession.destroySession(session.id);
         }
     }
 
