@@ -109,3 +109,6 @@
 {"time":"2025-02-20T13:48:34.758103+01:00","level":"INFO","prefix":"-","file":"app.go","line":"100","message":"app.go::NewApp-> Creating a new App"}
 {"time":"2025-02-20T13:48:46.719906+01:00","level":"INFO","prefix":"-","file":"app.go","line":"100","message":"app.go::NewApp-> Creating a new App"}
 {"time":"2025-02-20T13:48:58.5997555+01:00","level":"INFO","prefix":"-","file":"app.go","line":"100","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-20T18:08:32.9706023+01:00","level":"INFO","prefix":"-","file":"app.go","line":"100","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-20T18:08:49.5083413+01:00","level":"INFO","prefix":"-","file":"app.go","line":"100","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-20T18:10:52.1843912+01:00","level":"INFO","prefix":"-","file":"app.go","line":"100","message":"app.go::NewApp-> Creating a new App"}

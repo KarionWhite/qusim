@@ -67,24 +67,23 @@ class ActionHandler {
         const circuitAreaRect = this.circuit_area.getBoundingClientRect();
         ActionHandler.circuitAreaOffsetX = circuitAreaRect.left;
         ActionHandler.circuitAreaOffsetY = circuitAreaRect.top;
-        ActionHandler.blockOffsetX = circuitAreaRect.left + 50;
-        ActionHandler.blockOffsetY = circuitAreaRect.top + 50;
+        ActionHandler.blockOffsetX = circuitAreaRect.left +30;
+        ActionHandler.blockOffsetY = circuitAreaRect.top +60;
         //ActionHandler.wireOffsetX = circuitAreaRect.left + 50;
         //ActionHandler.wireOffsetY = circuitAreaRect.top + 50;
     }
 
     removeShadowBlock(event) {
         if (this.shadow) {
-            this.shadow.remove();
-            document.removeEventListener("mousemove", this.shadowDrag);
+            this.shadow.destroy();
         }
     }
 
     shadowBlock(event) {
         const tool = toolState.getTool();
         if (QBlock.isQBlock(tool)) {
-            this.shadow = QBlock.createShadowBlock(tool);
-            this.circuit_area.appendChild(this.shadow);
+            this.shadow = new QBlock(tool, true);
+            this.shadow.place(this.circuit_area, 0, 0);
             document.addEventListener("mousemove", this.shadowDrag.bind(this));
             document.addEventListener("keydown", this.stopshadowDrag.bind(this));
         }
@@ -99,17 +98,16 @@ class ActionHandler {
     shadowDrag(event) {
         const tool = toolState.getTool();
         if (QBlock.isQBlock(tool)) {
-            const shadowBlock = this.shadow;
-            if (shadowBlock) {
-                const [gridX, gridY] = circuitArea.getNextGridPoint(event.clientX - ActionHandler.blockOffsetX, event.clientY - ActionHandler.blockOffsetY);
-                shadowBlock.style.transform = `translate(${gridX + 10}px, ${gridY + 5}px)`;
-            }
+            const [gridX, gridY] = circuitArea.getNextGridPoint(event.clientX - ActionHandler.blockOffsetX, event.clientY - ActionHandler.blockOffsetY);
+            const x = gridX;
+            const y = gridY;
+            this.shadow.place(x, y);
         }
     }
 
     stopshadowDrag(event) {
         if (this.shadow && (event.key === "Escape" || event.code === "Escape") && toolState.getTool() !== "wire") {
-            this.shadow.remove();
+            this.shadow.destroy();
             document.removeEventListener("mousemove", this.shadowDrag);
             document.removeEventListener("keydown", this.stopshadowDrag);
             toolState.toSelect();
@@ -119,8 +117,8 @@ class ActionHandler {
     createBlock(event) {
         if (event.button !== 0) return; // Nur linke Maustaste
         const [gridX, gridY] = circuitArea.getNextGridPoint(event.clientX - ActionHandler.blockOffsetX, event.clientY - ActionHandler.blockOffsetY);
-        const x = gridX + 10;
-        const y = gridY + 5;
+        const x = gridX;
+        const y = gridY;
         //prüfe Hintergrund
         const possibleCollBlock = QBlock.checkCollision(this.shadow);
         if (possibleCollBlock) {
@@ -131,7 +129,7 @@ class ActionHandler {
         const tool = toolState.getTool();
         if (QBlock.isQBlock(tool)) {
             const qblock = new QBlock(tool);
-            qblock.place(this.circuit_area, x, y);
+            qblock.place(x, y);
         }
     }
 

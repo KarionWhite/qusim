@@ -1,24 +1,7 @@
-import  globalEvents from "./EventEmitter.mjs";
+import globalEvents from "./EventEmitter.mjs";
 
 class QBlock {
 
-    /**
-     * Erstelle einen Schattenblock, der als Vorschau für das Ziehen von Blöcken verwendet wird bevor ein Block existiert.
-     * Prüfe vor der Nutzung, ob ein Shadowblock bereits existiert und lösche ihn gegebenenfalls.
-     * @param {string} kind 
-     * @returns {SVGElement}
-     */
-    static createShadowBlock(kind) {
-        const shadowBlock = document.getElementById("shadowBlock");
-        if (shadowBlock) {
-            shadowBlock.remove();
-        }
-        const shadowBlockElement = QBlock[kind + "Template"]("shadowBlock", true);
-        shadowBlockElement.setAttribute("id", "shadowBlock");
-        shadowBlockElement.setAttribute("class", "shadowBlock");
-        shadowBlockElement.setAttribute("draggable", "true");
-        return shadowBlockElement;
-    }
 
     static __nextId = 0;
 
@@ -27,159 +10,138 @@ class QBlock {
     }
 
     static blocks = {};   //{id: block, ...} -> block = {id: id, template: template, x, y, inputWireIds: [], outputWireIds: []}
-    static qblocks = ["qinput", "measure", "identity", "hadamard", 
+    static qblocks = ["qinput", "measure", "identity", "hadamard",
         "pauli_x", "pauli_y", "pauli_z", "cnot", "swap", "toffoli", "fredkin"];
 
-    static qinputTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "Input", "qinput", 0, 1,shadow); }
-    static measureTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "M", "measure", 1, 0,shadow); }
-    static identityTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "Ident", "identity", 1, 1,shadow); }
-    static hadamardTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "Hada", "hadamard", 1, 1,shadow); }
-    static pauli_xTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "Pauli X", "pauli_x", 1, 1,shadow); }
-    static pauli_yTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "Pauli Y", "pauli_y", 1, 1,shadow); }
-    static pauli_zTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "Pauli Z", "pauli_z", 1, 1,shadow); }
-    static cnotTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "CNOT", "cnot", 2, 2,shadow); }
-    static swapTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "SWAP", "swap", 2, 2,shadow); }
-    static toffoliTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "TOFF", "toffoli", 3, 3,shadow); }
-    static fredkinTemplate = (id,shadow=false) => { return QBlock.__ntomTemplate(id, "FRED", "fredkin", 3, 3,shadow); }
+    static qinputTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "Input", 0, 1, shadow); }
+    static measureTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "M", 1, 0, shadow); }
+    static identityTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "Ident", 1, 1, shadow); }
+    static hadamardTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "H", 1, 1, shadow); }
+    static pauli_xTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "P X", 1, 1, shadow); }
+    static pauli_yTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "P Y", 1, 1, shadow); }
+    static pauli_zTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "P Z", 1, 1, shadow); }
+    static cnotTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "C Not", 2, 2, shadow); }
+    static swapTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "Swap", 2, 2, shadow); }
+    static toffoliTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "Toff", 3, 3, shadow); }
+    static fredkinTemplate = (id, shadow = false) => { return QBlock.__ntomTemplate(id, "Fred", 3, 3, shadow); }
     //Derzeitig nicht implementiert in Qengine
-    static xgateTemplate = (id, name, klasse, x, y,shadow=false) => { return QBlock.__ntomTemplate(id, name, klasse, x, y,shadow); }
+    static xgateTemplate = (id, name, klasse, x, y, shadow = false) => { return QBlock.__ntomTemplate(id, name, klasse, x, y, shadow); }
 
     /**
      * Ein allgemeines Gatter-Template für die Toolbox
      * du kannst die Menge der Inputs und Outputs angeben und diese werden automatisch generiert
      * @param {number} id
      * @param {string} gatename
-     * @param {string} klasse
      * @param {number} inputs
      * @param {number} outputs
      * @returns {SVGElement}
      */
-    static __ntomTemplate(id, gatename, klasse, inputs, outputs,shadow=false) {
-        const divg = document.createElement("div");
-        divg.setAttribute("id", `klasse_${id}`);
-        divg.setAttribute("class", `gate_${klasse}`);
-        divg.setAttribute("draggable", "true");   //Funktioniert nicht ?! Wir werden es wohl mit JS machen müssen =(
-        const g = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        g.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        g.setAttribute("id", `svg_${id}`);
-
-
+    static __ntomTemplate(id, gatename, inputs, outputs, shadow = false,x=0,y=0) {
         //Wir wollen die Größe des Gatters berechnen
+        const elements = [];
+
         const height = 60 + 20 * Math.max(inputs, outputs); //60 ist die Höhe des Rechtecks, 20 ist der Abstand zwischen den Inputs/Outputs
         const width = 60; //Die Breite des Rechtecks
         const in_out_offset = 45;
 
-        g.setAttribute("width", width + 30); // +20 weil es besser aussieht
-        g.setAttribute("height", height + 40);
-
-
-        const has_startDrag = globalEvents.hasListeners("startDrag") && !shadow; 
+        const has_startDrag = globalEvents.hasListeners("startDrag") && !shadow;
         const has_placeBlock = globalEvents.hasListeners("placeBlock") && shadow;
         const has_startWire = globalEvents.hasListeners("startWire") && !shadow;
         //Warnungen, wenn keine Listener vorhanden sind, wenn sie benötigt werden
-        if(!has_startDrag && !shadow) console.warn("No listener for 'startDrag' event.");
-        if(!has_placeBlock && shadow) console.warn("No listener for 'placeBlock' event.");
-        if(!has_startWire && !shadow) console.warn("No listener for 'startWire' event.");
-
-        let rectOffsetX = 10;
-        let rectOffsetY = 10;
+        if (!has_startDrag && !shadow) console.warn("No listener for 'startDrag' event.");
+        if (!has_placeBlock && shadow) console.warn("No listener for 'placeBlock' event.");
+        if (!has_startWire && !shadow) console.warn("No listener for 'startWire' event.");
 
         // Rechteck
         const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         rect.setAttribute("id", `${id}_rect`);
-        rect.setAttribute("x", rectOffsetX);
-        rect.setAttribute("y", rectOffsetY);
+        rect.setAttribute("x", x);
+        rect.setAttribute("y", y);
         rect.setAttribute("width", width);
-        rect.setAttribute("height", height + 10); // +10 weil es besser aussieht
+        rect.setAttribute("height", height);
         rect.setAttribute("fill", "white");
         rect.setAttribute("stroke", "black");
         rect.setAttribute("stroke-width", "1");
-        if(has_startDrag){
+        if (has_startDrag) {
             rect.addEventListener("mousedown", (event) => {
                 globalEvents.emit("startDrag", event, id);
             });
         }
-        if(has_placeBlock){
+        if (has_placeBlock) {
             rect.addEventListener("mousedown", (event) => {
                 globalEvents.emit("placeBlock", event, id);
             });
         }
-        g.appendChild(rect);
+        elements.push(rect);
 
         // Text
         //Wir müssen den die höhe des Textes berechnen
         const heightText = 20
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("id", `${id}_text`);
-        text.setAttribute("x", width / 2 + 10);
-        text.setAttribute("y", heightText + 10);
+        text.setAttribute("x", x + width / 2);
+        text.setAttribute("y", y + heightText + 20);
         text.setAttribute("text-anchor", "middle");
         text.setAttribute("alignment-baseline", "middle");
         text.setAttribute("font-size", "20");
         text.setAttribute("fill", "black");
         text.textContent = gatename;
-        if(has_startDrag){
+        if (has_startDrag) {
             text.addEventListener("mousedown", (event) => {
                 globalEvents.emit("startDrag", event, id);
             });
         }
-        if(has_placeBlock){
+        if (has_placeBlock) {
             text.addEventListener("mousedown", (event) => {
                 globalEvents.emit("placeBlock", event, id);
             });
         }
-        g.appendChild(text);
-        divg.appendChild(g);
-        //Wenn es sich um einen Schattenblock handelt, dann sollen keine Inputs und Outputs angezeigt werden
-        if(shadow){
-            return divg;
-        }
+        elements.push(text);
+
         // Highlight Box
         const highlight = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         highlight.setAttribute("id", `highlight_${id}`);
-        highlight.setAttribute("x", "0");
-        highlight.setAttribute("y", "0");
-        highlight.setAttribute("width", width+20);
-        highlight.setAttribute("height", height+30);
-        console.log(width+20);
-        console.log(height+30)
+        highlight.setAttribute("x", x-10);
+        highlight.setAttribute("y", y-10);
+        highlight.setAttribute("width", width + 20);
+        highlight.setAttribute("height", height + 30);
         highlight.setAttribute("fill", "transparent");
         highlight.setAttribute("stroke", "blue");
         highlight.setAttribute("stroke-width", "2");
         highlight.setAttribute("visibility", "hidden");
-        if(has_startDrag){
+        if (has_startDrag) {
             highlight.addEventListener("mousedown", (event) => {
                 globalEvents.emit("startDrag", event, id);
             });
         }
-        g.appendChild(highlight);
+        elements.push(highlight);
 
         // Inputs rote Kreise, weil noch keine Verbindung besteht
         for (let i = 0; i < inputs; i++) {
             const inputID = `input_${id}_${i}`;
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             circle.setAttribute("id", inputID);
-            circle.setAttribute("cx", "10");
-            circle.setAttribute("cy", 20 * i + in_out_offset + 10);
+            circle.setAttribute("cx", x);
+            circle.setAttribute("cy",this.y + 20 * i + in_out_offset -5);
             circle.setAttribute("r", "5");
             circle.setAttribute("fill", "red");
             circle.setAttribute("stroke", "black");
             circle.setAttribute("stroke-width", "1");
-            g.appendChild(circle);
+            elements.push(circle);
             //Unsichtbare Hitbox zum Klicken auf den Input
             const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             hitbox.setAttribute("id", inputID + "_hitbox");
-            hitbox.setAttribute("x", "0");
-            hitbox.setAttribute("y", 20 * i + in_out_offset);
-            hitbox.setAttribute("width", "20");
+            hitbox.setAttribute("x", x-10);
+            hitbox.setAttribute("y", y + 20 * i + in_out_offset -15);
+            hitbox.setAttribute("width", "30");
             hitbox.setAttribute("height", "20");
             hitbox.setAttribute("fill", "transparent");
-            if(has_startWire){
+            if (has_startWire) {
                 hitbox.addEventListener("mousedown", (event) => {
                     globalEvents.emit("startWire", event, inputID)
                 });
             }
-            g.appendChild(hitbox);
+            if (!shadow) elements.push(hitbox);
 
         }
 
@@ -188,28 +150,28 @@ class QBlock {
             const outputID = `output_${id}_${i}`;
             const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
             polygon.setAttribute("id", outputID);
-            polygon.setAttribute("points", `${width},${20 * i + in_out_offset + 5} ${width+10},${20 * i + in_out_offset + 10} ${width},${20 * i + in_out_offset + 15}`);
+            polygon.setAttribute("points", `${this.x + width - 10},${this.y + 20 * i + in_out_offset - 10} ${this.x + width},${this.y + 20 * i + in_out_offset - 5} ${this.x +width - 10},${this.y +20 * i + in_out_offset}`);
             polygon.setAttribute("fill", "red");
             polygon.setAttribute("stroke", "black");
             polygon.setAttribute("stroke-width", "1");
-            g.appendChild(polygon);
+            elements.push(polygon);
             //Unsichtbare Hitbox zum Klicken auf den Output
             const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             hitbox.setAttribute("id", outputID + "_hitbox"); // Korrigierte ID
-            hitbox.setAttribute("x", width);
-            hitbox.setAttribute("y", 20 * i + in_out_offset);
-            hitbox.setAttribute("width", "20");
+            hitbox.setAttribute("x", x + width -10);
+            hitbox.setAttribute("y", y + 20 * i + in_out_offset -10);
+            hitbox.setAttribute("width", "30");
             hitbox.setAttribute("height", "20");
             hitbox.setAttribute("fill", "transparent");
-            if(has_startWire){
+            if (has_startWire) {
                 hitbox.addEventListener("mousedown", (event) => {
                     globalEvents.emit("startWire", event, outputID)
                 });
             }
-            g.appendChild(hitbox);
+            if (!shadow) elements.push(hitbox);
         }
 
-        return divg;
+        return elements;
     }
 
     /**
@@ -218,11 +180,11 @@ class QBlock {
      * @param {number} y 
      * @returns {null | String} null wenn kein Block getroffen wurde, sonst die ID des getroffenen Ports
      */
-    static hitInputOutput(x,y){
+    static hitInputOutput(x, y) {
         for (let BlockID in QBlock.blocks) {
             const block = QBlock.blocks[BlockID];
-            const hit = block.checkInputOutput(x,y);
-            if(hit) return hit;
+            const hit = block.checkInputOutput(x, y);
+            if (hit) return hit;
         }
         return null;
     }
@@ -232,16 +194,16 @@ class QBlock {
      * @param {SVGElement || QBlock} collBlock 
      * @returns 
      */
-    static checkCollision(collBlock){
+    static checkCollision(collBlock) {
         //Wir prüfen 9 Punkte auf Kollision
-        let dimensions = {x:0,y:0,width:0,height:0};
-        if(collBlock instanceof QBlock){
+        let dimensions = { x: 0, y: 0, width: 0, height: 0 };
+        if (collBlock instanceof QBlock) {
             dimensions = collBlock.getDimensions();
         }
-        else if(collBlock.getAttribute("id") === "shadowBlock"){
+        else if (collBlock.getAttribute("id") === "shadowBlock") {
             collBlock.getAttribute("style").split(";").forEach((style) => {
-                if(style.includes("translate")){
-                    const [x,y] = style.match(/-?\d+/g);
+                if (style.includes("translate")) {
+                    const [x, y] = style.match(/-?\d+/g);
                     dimensions.x = parseInt(x);
                     dimensions.y = parseInt(y);
                 }
@@ -251,16 +213,16 @@ class QBlock {
                 dimensions.height = parseInt(rect.getAttribute("height"));
             });
         }
-        else{
+        else {
             console.error("Invalid argument for checkCollision: ", collBlock);
             return null;
         }
-        const points = this.__colisionPoints(dimensions.x,dimensions.y,dimensions.width,dimensions.height);
+        const points = this.__colisionPoints(dimensions.x, dimensions.y, dimensions.width, dimensions.height);
         for (let BlockID in QBlock.blocks) {
             const block = QBlock.blocks[BlockID];
             const blockDimensions = block.getDimensions();
-            if(block.id === collBlock.id) continue;
-            const blockPoints = QBlock.__colisionPoints(blockDimensions.x,blockDimensions.y,blockDimensions.width,blockDimensions.height);
+            if (block.id === collBlock.id) continue;
+            const blockPoints = QBlock.__colisionPoints(blockDimensions.x, blockDimensions.y, blockDimensions.width, blockDimensions.height);
             if (this.__checkCollisionPoints(points, blockPoints)) {
                 return block;
             }
@@ -324,7 +286,7 @@ class QBlock {
     /**
      * @private
      */
-    static __colisionPoints(x,y,width,height){
+    static __colisionPoints(x, y, width, height) {
         const p1 = [x, y];    //Obere linke Ecke
         const p2 = [x + width, y]; //Obere rechte Ecke
         const p3 = [x, y + height]; //Untere linke Ecke
@@ -341,7 +303,7 @@ class QBlock {
      */
     static getBlockById(id) {
         const block = QBlock.blocks[id];
-        if(!block){
+        if (!block) {
             console.error("Block not Found: " + id);
             return null;
         }
@@ -371,27 +333,27 @@ class QBlock {
     /**
      * @private
      */
-    static __connetctor(blockId, wireId, connect, inputIndex=-1, outputIndex=-1) {
+    static __connetctor(blockId, wireId, connect, inputIndex = -1, outputIndex = -1) {
         const block = QBlock.getBlockById(blockId);
         if (!block) {
             return false; // Block nicht gefunden
         }
 
         const element = inputIndex >= 0
-            ? block.template.querySelector(`#input_${blockId}_${inputIndex}`)
-            : block.template.querySelector(`#output_${blockId}_${outputIndex}`);
+            ? block.elements.find(element => element.getAttribute("id") === `input_${blockId}_${inputIndex}`)
+            : block.elements.find(element => element.getAttribute("id") === `output_${blockId}_${outputIndex}`);
         if (element) {
             element.setAttribute("fill", connect ? "green" : "red");
             if (inputIndex >= 0) {
                 //Prüfung ob der Eingang schon belegt ist.
-                if(connect && block.inputWireIds[inputIndex] !== null){
+                if (connect && block.inputWireIds[inputIndex] !== null) {
                     console.warn(`Input ${inputIndex} of block ${blockId} is already connected.`);
                     return false;
                 }
                 block.inputWireIds[inputIndex] = connect ? wireId : null;
             } else {
                 //Prüfung ob der Ausgang schon belegt ist.
-                 if(connect && block.outputWireIds[outputIndex] !== null){
+                if (connect && block.outputWireIds[outputIndex] !== null) {
                     console.warn(`Output ${outputIndex} of block ${blockId} is already connected.`);
                     return false;
                 }
@@ -399,14 +361,14 @@ class QBlock {
             }
             return true;
         } else {
-            console.error(`Element not found in block ${blockId}:`, inputIndex >=0 ? `Input ${inputIndex}` : `Output ${outputIndex}`); // Detailliertere Fehlermeldung
+            console.error(`Element not found in block ${blockId}:`, inputIndex >= 0 ? `Input ${inputIndex}` : `Output ${outputIndex}`); // Detailliertere Fehlermeldung
             return false;
         }
     }
 
     static isQBlock(name) {
-        for(let i = 0; i < QBlock.qblocks.length; i++){
-            if(QBlock.qblocks[i].includes(name)) return true;
+        for (let i = 0; i < QBlock.qblocks.length; i++) {
+            if (QBlock.qblocks[i].includes(name)) return true;
         }
         return false;
     }
@@ -415,24 +377,33 @@ class QBlock {
         return QBlock.qblocks;
     }
 
-    constructor(kind) {
+    constructor(kind, shadow = false, parent = "toolbox_grid") {
+        this.kind = kind;
+        this.shadow = shadow;
         this.id = QBlock.getNextId();
         this._isLoading = true; // Ladezustand setzen
         this.x = 0;
         this.y = 0;
         this.inputWireIds = []; // Initialisiere als leeres Array
         this.outputWireIds = []; // Initialisiere als leeres Array
-
+        this.parentId = parent;
+        this.parent = document.getElementById(this.parentId);
         try {
             /**
-             * Dynamische Erstellung des Templates
+             * Dynamische Erstellung der SVG Elemente durch die Template Funktionen
              * @type {SVGElement}
              */
-            this.template = QBlock[kind + "Template"](this.id,false);
-            const Inputs = this.template.querySelector(`#svg_${this.id}`)  .querySelectorAll(`[id^="input_${this.id}_"]:not([id$="_hitbox"])`);
-            const Outputs = this.template.querySelector(`#svg_${this.id}`)  .querySelectorAll(`[id^="output_${this.id}_"]:not([id$="_hitbox"])`)
-            const numInputs = Inputs.length;
-            const numOutputs = Outputs.length;
+            this.elements = QBlock[kind + "Template"](this.id, this.shadow);
+            let numInputs = 0;
+            let numOutputs = 0;
+            for (const element of this.elements) {
+                if (element.tagName === "circle") {
+                    numInputs++;
+                }
+                else if (element.tagName === "polygon") {
+                    numOutputs++;
+                }
+            }
             this.inputWireIds = new Array(numInputs).fill(null);
             this.outputWireIds = new Array(numOutputs).fill(null);
 
@@ -456,50 +427,108 @@ class QBlock {
     //class methods
     /**
      * Diese Methode Platziert den QBlock an die gegebene Position
-     * @param {Element} parent div in dem der Block platziert werden soll
      * @param {number} x 
      * @param {number} y 
      */
-    place(parent,x,y){
-        this.template.style.position = "absolute";
+    place(x, y) {
         this.x = x;
         this.y = y;
-        this.template.style.left = x + "px";
-        this.template.style.top = y + "px";
-        parent.appendChild(this.template);
+        this.__setPositioning();
+        for (const element of this.elements) {
+            this.parent.appendChild(element);
+        }
+    }
+
+    __setPositioning(){
+        const width = 60; //Die Breite des Rechtecks
+        const in_out_offset = 45;
+        for(const element of this.elements){
+            /**
+             * @type {string}
+             */
+            const id = element.getAttribute("id");
+            if(id.includes("rect")){
+                element.setAttribute("x",this.x);
+                element.setAttribute("y",this.y);
+            }else if(id.includes("text")){
+                element.setAttribute("x",this.x + width / 2);
+                element.setAttribute("y",this.y+20);
+            }else if(id.includes("highlight")){
+                element.setAttribute("x",this.x-10);
+                element.setAttribute("y",this.y-10);
+            }else if(id.includes("input") && !element.id.includes("hitbox")){
+                const index = parseInt(element.id.split("_")[2]);
+                element.setAttribute("cx",this.x);
+                element.setAttribute("cy",this.y + 20 * index + in_out_offset -5);
+            }else if(id.includes("output") && !element.id.includes("hitbox")){
+                const index = parseInt(element.id.split("_")[2]);
+                element.setAttribute("points", `${this.x + width - 10},${this.y + 20 * index + in_out_offset - 10} ${this.x + width},${this.y + 20 * index + in_out_offset - 5} ${this.x +width - 10},${this.y +20 * index + in_out_offset}`);
+            }else if(id.includes("hitbox")){
+                const index = parseInt(id.split("_")[2]);
+                if(id.includes("input")){
+                    element.setAttribute("x",this.x-10);
+                    element.setAttribute("y",this.y + 20 * index + in_out_offset -15);
+                }else{
+                    element.setAttribute("x",this.x + width-20);
+                    element.setAttribute("y",this.y + 20 * index + in_out_offset-15);
+                }
+            }
+
+        }
+    }
+
+    /**
+     * Wandelt den Schattenblock in einen normalen Block um
+     */
+    shadowToBlock() {
+        this.shadow = false;
+        this.elements = QBlock[kind + "Template"](this.id, this.shadow);
+        this.remove();
+        this.place(this.x, this.y);
+    }
+
+    /**
+     * Löscht den QBlock aus dem DOM, ohne ihn zu zerstören
+     */
+    remove() {
+        for (const element of this.elements) {
+            if(this.parent.hasChildNodes() && this.parent.contains(element)){
+                this.parent.removeChild(element);
+            }
+        }
     }
 
     /**
      * Zerstört den QBlock und entfernt ihn aus dem DOM
-     * @param {Element} parent  div in dem der Block platziert wurde
      */
-    destroy(parent){
-        parent.removeChild(this.template);
+    destroy() {
+        this.remove();
         QBlock.deleteBlockById(this.id);
     }
 
-    highlight(){
-        const highlightBox = this.template.querySelector(`#highlight_${this.id}`)
+    highlight() {
+        const highlightBox = this.elements.find(element => element.getAttribute("id").includes("highlight"));
         highlightBox.setAttribute("visibility", "visible");
     }
 
-    unhighlight(){
-        const highlightBox = this.template.querySelector(`#highlight_${this.id}`)
+    unhighlight() {
+        const highlightBox = this.elements.find(element => element.getAttribute("id").includes("highlight"));
         highlightBox.setAttribute("visibility", "hidden");
     }
 
-    getDimensions(){
-        const width = parseInt(this.template.querySelector(`#highlight_${this.id}`).getAttribute("width"));   
-        const height = parseInt(this.template.querySelector(`#highlight_${this.id}`).getAttribute("height"));
-        return {x: this.x, y: this.y, width: width, height: height};
+    getDimensions() {
+        const highlightBox = this.elements.find(element => element.getAttribute("id").includes("highlight"));
+        const width = parseInt(highlightBox.getAttribute("width"));
+        const height = parseInt(highlightBox.getAttribute("height"));
+        return { x: this.x, y: this.y, width: width, height: height };
     }
 
     /**
      * Gibt die Position des Inputs oder Outputs zurück
      * @param {string} inoutID
      * @returns {{x: number, y: number}}
-        */	
-    getQBlockPortPosition(portID,scrollLeft,scrollTop){
+        */
+    getQBlockPortPosition(portID, scrollLeft, scrollTop) {
         const match = portID.match(/(input|output)_(\d+)_(\d+)/);
         if (!match) {
             console.error("Invalid port ID format:", portID);
@@ -507,15 +536,15 @@ class QBlock {
         }
         const [, portType, blockIdStr, portIndexStr] = match;
         const portIndex = parseInt(portIndexStr, 10);
-    
+
         const portElement = document.getElementById(portID);
         if (!portElement) {
             console.error("Port element not found for ID:", portID);
             return [0, 0];
         }
-    
+
         const portRect = portElement.getBoundingClientRect();
-    
+
         let x;
         if (portType === "input") {
             x = portRect.left + scrollLeft + (portRect.width / 2);
@@ -523,26 +552,26 @@ class QBlock {
             x = portRect.left + scrollLeft + portRect.width;
         }
         const y = portRect.top + scrollTop + (portRect.height / 2);
-    
+
         return [x, y];
     }
 
-    checkInputOutput(x,y){
-        const inputs = this.template.querySelectorAll(`[id^="input_${this.id}_"]`);
-        const outputs = this.template.querySelectorAll(`[id^="output_${this.id}_"]`);
-        for(let i = 0; i < inputs.length; i++){
+    checkInputOutput(x, y) {
+        const inputs = this.elements.filter(element => element.tagName === "circle");
+        const outputs = this.elements.filter(element => element.tagName === "polygon");
+        for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
             const rect = input.getBoundingClientRect();
             console.log(rect);
-            if(x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom){
+            if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
                 return `input_${this.id}_${i}`;
             }
         }
-        for(let i = 0; i < outputs.length; i++){
+        for (let i = 0; i < outputs.length; i++) {
             const output = outputs[i];
             const rect = output.getBoundingClientRect();
             console.log(rect);
-            if(x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom){
+            if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
                 return `output_${this.id}_${i}`;
             }
         }
@@ -552,7 +581,7 @@ class QBlock {
      * 
      * @param {string} message 
      */
-    showError(message){
+    showError(message) {
         window.alert(message);
     }
 }

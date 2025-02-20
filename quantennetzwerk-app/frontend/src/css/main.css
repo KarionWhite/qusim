@@ -28,10 +28,14 @@ body {
 }
 
 #circuit-area {
-  width: 100%;  /* Beispielwert */
-  height: 98%; /* Beispielwert */
+  width: 104%;  /* Beispielwert */
+  height:100%; /* Beispielwert */
   overflow: scroll;
   position: relative;
+}
+
+#circuid-area::-webkit-scrollbar {
+  display: none;
 }
 
 #toolbox_grid{
