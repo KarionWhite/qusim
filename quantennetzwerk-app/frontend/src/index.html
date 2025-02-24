@@ -11,105 +11,136 @@
     <script src="/Bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/js/toolmain.mjs" type="module"></script>
 </head>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="datei-menu"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            Datei
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="datei-menu">
-                            <li><a class="dropdown-item" href="#" id="new_project">Neues Projekt</a></li>
-                            <li><a class="dropdown-item" href="#" id="open_project">Projekt öffnen</a></li>
-                            <li><a class="dropdown-item" href="#" id="save_project">Projekt speichern</a></li>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="datei-menu"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            Bearbeiten
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="datei-menu">
-                            <li><a class="dropdown-item" href="#" id="edit_back"><i class="bi bi-arrow-left"></i>
-                                    Zurück</a></li>
-                            <li><a class="dropdown-item" href="#" id="edit_forward"><i class="bi bi-arrow-right"></i>
-                                    Vorwärts</a></li>
-                        </ul>
-                    </div>
-                </li>
-                <li>
-                    <button class="btn btn-secondary" type="button" id="run_simulation">
-                        Simulation starten</button>
-                </li>
-            </ul>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="datei-menu"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                Datei
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="datei-menu">
+                                <li><a class="dropdown-item" href="#" id="newproject">Neues Projekt</a></li>
+                                <li><a class="dropdown-item" href="#" id="openproject">Projekt öffnen</a></li>
+                                <li><a class="dropdown-item" href="#" id="saveproject">Projekt speichern</a></li>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="datei-menu"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                Bearbeiten
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="datei-menu">
+                                <li><a class="dropdown-item" href="#" id="edit_back"><i class="bi bi-arrow-left"></i>
+                                        Zurück</a></li>
+                                <li><a class="dropdown-item" href="#" id="edit_forward"><i class="bi bi-arrow-right"></i>
+                                        Vorwärts</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button class="btn btn-secondary" type="button" id="run_simulation">
+                            Simulation starten</button>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2">
-            <div id="toolbox">
-                <h5>Toolbox</h5>
-                <div class="list-group">
-                    <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
-                        id="tool_info">
-                        Info
-                    </button>
-                    <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
-                        id="tool_select">
-                        Maus
-                    </button>
-                    <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
-                        id="tool_wire">
-                        Verdrahten
-                    </button>
-                    <div class="qgates-list">
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_qinput">QInput</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_identity">Identity</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_hadamard">Hadamar</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_pauli_x">Pauli X</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_pauli_y">Pauli Y</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_pauli_z">Pauli Z</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_cnot">CNOT</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_swap">Swap</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_toffoli">Toffoli</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_fredkin">Fredkin</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button"
-                            id="tool_measure">Measure</button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button" id="tool_xgate"
-                            hidden>XGate</button>
+    <div class="container-fluid" id="main-container">
+        <div class="row">
+            <div class="col-md-2">
+                <div id="toolbox">
+                    <h5>Toolbox</h5>
+                    <div class="list-group">
+                        <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
+                            id="tool_info">
+                            Info
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
+                            id="tool_select">
+                            Maus
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
+                            id="tool_wire">
+                            Verdrahten
+                        </button>
+                        <div class="qgates-list">
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_qinput">QInput</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_identity">Identity</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_hadamard">Hadamar</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_pauli_x">Pauli X</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_pauli_y">Pauli Y</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_pauli_z">Pauli Z</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_cnot">CNOT</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_swap">Swap</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_toffoli">Toffoli</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_fredkin">Fredkin</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button"
+                                id="tool_measure">Measure</button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button" id="tool_xgate"
+                                hidden>XGate</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-10">
-            <div id="circuit-area">
+            <div class="col-md-10">
+                <div id="circuit-area">
 
+                </div>
             </div>
         </div>
     </div>
-</div>
+    <div  class="container-fluid" id="create_project" hidden>
+        <div class="row">
+            <div class="col-md-12">
+                <form action="" method="post" id="create_projectForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="project_name">Projektname</label>
+                        <input type="text" class="form-control" id="project_name" name="project_name" required>
+                        <label for="project_description">Projektbeschreibung</label>
+                        <input type="text" class="form-control" id="project_description" name="project_description" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="create_projectBtn">Speichern</button>
+                </form>
+                <button type="submit" class="btn btn-primary" id="return_from_create">Return</button>
+            </div>
+        </div>
+    </div>
+    <div  class="container-fluid" id="open_project" hidden>
+        <div class="row">
+            <div class="col-md-12">
+                <form action="" method="post" id="open_projectForm" enctype="multipart/form-data">
+                    <div class="form-group" id="project_name">
+                        <label for="project_name">Projektname</label>
+                        <input type="text" class="form-control" id="project_name" name="project_name" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="open_projectBtn">Öffnen</button>
+                </form>
+                <button type="submit" class="btn btn-primary" id="return_from_open">Return</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

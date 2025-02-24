@@ -1,57 +1,39 @@
 package taskhandler
 
-import "time"
+import (
+	"time"
+)
 
 type Project_Space struct {
-	Name       string           `json:"name"`
-	Created_At time.Time        `json:"created_at"`
-	Updated_At time.Time        `json:"updated_at"`
-	Blocks     map[string]Block `json:"blocks"`
-	Wire       map[string]Wire  `json:"wire_nodes"`
-	Qubits     map[string]Qubit `json:"qubits"`
+	Name        string                 `json:"name"`
+	Created_At  time.Time              `json:"created_at"`
+	Updated_At  time.Time              `json:"updated_at"`
+	Description string                 `json:"description"`
+	Blocks      map[string]Block       `json:"blocks"`
+	WireSession map[string]WireSession `json:"wire_session"`
+	Qubits      map[string]Qubit       `json:"qubits"`
 }
 
 type Block struct {
-	Type string `json:"type"`
-	X    int    `json:"x"`
-	Y    int    `json:"y"`
+	Type          string `json:"type"`
+	X             int    `json:"x"`
+	Y             int    `json:"y"`
+	InputWireIDs  []int  `json:"input_wire_ids"`
+	OutputWireIDs []int  `json:"output_wire_ids"`
 }
 
-type WireNode interface {
-	IsWireNode()
+type WireSession struct {
+	QbitStart string `json:"qbit_start"`
+	QbitEnd   string `json:"qbit_end"`
+	Wires     []Wire `json:"wires"`
 }
 
-type InputNode struct {
-	Type string  `json:"type"`
-	ID   string  `json:"id"`
-	Port int     `json:"port"`
-	X    float64 `json:"x"`
-	Y    float64 `json:"y"`
+type Wire struct {
+	ID        int    `json:"id"`
+	X         int    `json:"x"`
+	Y         int    `json:"y"`
+	Direction [2]int `json:"direction"`
 }
-
-func (InputNode) IsWireNode() {}
-
-type OutputNode struct {
-	Type string  `json:"type"`
-	ID   string  `json:"id"`
-	Port int     `json:"port"`
-	X    float64 `json:"x"`
-	Y    float64 `json:"y"`
-}
-
-func (OutputNode) IsWireNode() {}
-
-type Node struct {
-	Type string  `json:"type"`
-	ID   string  `json:"id"`
-	Port int     `json:"port"`
-	X    float64 `json:"x"`
-	Y    float64 `json:"y"`
-}
-
-func (Node) IsWireNode() {}
-
-type Wire map[string][]WireNode
 
 type Qubit struct {
 	ID           string       `json:"id"`

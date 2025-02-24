@@ -1,0 +1,121 @@
+{
+    "blocks": {
+        "1": {
+            "kind": "qinput",
+            "shadow": false,
+            "id": 1,
+            "_isLoading": false,
+            "x": 170,
+            "y": 210,
+            "parentId": "toolbox_grid",
+            "parent": {},
+            "elements": [
+                {},
+                {},
+                {},
+                {},
+                {}
+            ],
+            "inputWireIds": [],
+            "outputWireIds": [
+                1
+            ]
+        },
+        "3": {
+            "kind": "hadamard",
+            "shadow": false,
+            "id": 3,
+            "_isLoading": false,
+            "x": 310,
+            "y": 210,
+            "parentId": "toolbox_grid",
+            "parent": {},
+            "elements": [
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {}
+            ],
+            "inputWireIds": [
+                2
+            ],
+            "outputWireIds": [
+                3
+            ]
+        },
+        "5": {
+            "kind": "measure",
+            "shadow": false,
+            "id": 5,
+            "_isLoading": false,
+            "x": 450,
+            "y": 210,
+            "parentId": "toolbox_grid",
+            "parent": {},
+            "elements": [
+                {},
+                {},
+                {},
+                {},
+                {}
+            ],
+            "inputWireIds": [
+                4
+            ],
+            "outputWireIds": []
+        }
+    },
+    "wire_session": {
+        "1": {
+            "qbit_start": "output_1_0",
+            "qbit_end": "input_3_0",
+            "wires": [
+                {
+                    "id": 1,
+                    "x": 230,
+                    "y": 250,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 2,
+                    "x": 231,
+                    "y": 250,
+                    "direction": [
+                        80,
+                        0
+                    ]
+                }
+            ]
+        },
+        "2": {
+            "qbit_start": "output_3_0",
+            "qbit_end": "input_5_0",
+            "wires": [
+                {
+                    "id": 3,
+                    "x": 370,
+                    "y": 250,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 4,
+                    "x": 371,
+                    "y": 250,
+                    "direction": [
+                        80,
+                        0
+                    ]
+                }
+            ]
+        }
+    }
+}

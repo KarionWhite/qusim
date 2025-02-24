@@ -7,6 +7,8 @@ import { toolState } from './toolState.mjs';
 import QBlock from './QBlock.mjs';
 import { circuitArea } from './circuit_area.mjs';
 import qWireSession from './QWireSession.mjs';
+import { go_post_event, go_get_event} from './go_com.mjs';
+import project from './Project.mjs';
 
 class ActionHandler {
 
@@ -46,6 +48,8 @@ class ActionHandler {
         globalEvents.on("wireNodeClick", this.wireNodeClick.bind(this));
         globalEvents.on("wireClick", this.wireClick.bind(this));
 
+        globalEvents.on("save-project", this.server_save_project);  // Event triggered by Navbar
+        globalEvents.on("load-project", this.server_load_project);  // Event triggered by Navbar
 
         //Registriere ToolState Events
         this.qBlock_tools.forEach(tool => {
@@ -63,6 +67,48 @@ class ActionHandler {
         this.updateOffsets();
     }
 
+
+    server_save_project = (retObj) => {
+        const data = {}
+        data["task"] = "save_project";
+        data["success"] = true;
+        data["data"] = this.getQCircuit();
+        go_post_event(data, (data) => {
+            if (data.success) {
+                console.log("Project saved");
+                window.alert(data.data);
+            } else {
+                console.error("Project save failed");
+                globalEvents.emit("save-project-failed", data);
+            }
+        });
+    };
+
+    server_load_project = (retObj) => {
+        const data = {}
+        data["task"] = "load_project";
+        data["success"] = true;
+        go_get_event(data, (data) => {
+            if (data.success) {
+                console.log("Project loaded");
+                this.loadQCircuit(data.data);
+            } else {
+                console.error("Project load failed");
+            }
+        });
+        project.load(retObj);
+    };
+
+    loadQCircuit = (qCircuit) =>{
+        console.log("Loading QCircuit");
+        console.log(qCircuit);
+        for(const block in qCircuit.blocks){
+            const qBlock = new QBlock(qCircuit.blocks[block].type);
+            qBlock.place(qCircuit.blocks[block].x, qCircuit.blocks[block].y);
+        }
+        qWireSession.load(qCircuit.wire_session);
+    };
+
     updateOffsets = () => {
         const circuitAreaRect = this.circuit_area.getBoundingClientRect();
         ActionHandler.circuitAreaOffsetX = circuitAreaRect.left;
@@ -75,15 +121,17 @@ class ActionHandler {
 
     removeShadowBlock(event) {
         if (this.shadow) {
-            this.shadow.destroy();
+            this.shadow.remove();
+            this.shadow = null;
         }
     }
 
     shadowBlock(event) {
         const tool = toolState.getTool();
         if (QBlock.isQBlock(tool)) {
+            if(this.shadow) this.shadow.remove();
             this.shadow = new QBlock(tool, true);
-            this.shadow.place(this.circuit_area, 0, 0);
+            this.shadow.place(0, 0);
             document.addEventListener("mousemove", this.shadowDrag.bind(this));
             document.addEventListener("keydown", this.stopshadowDrag.bind(this));
         }
@@ -168,9 +216,7 @@ class ActionHandler {
     dragMove(event) {
         if (this.draggedQBlock) {
             const [gridX, gridY] = circuitArea.getNextGridPoint(event.clientX - this.mouseOffsetX, event.clientY - this.mouseOffsetY);
-            const x = gridX + 10;
-            const y = gridY + 5;
-            this.draggedQBlock.place(this.circuit_area, x, y);
+            this.draggedQBlock.place(gridX, gridY);
         }
     }
 
@@ -189,7 +235,7 @@ class ActionHandler {
         }
         if ((event.key === "Escape" || event.code === "Escape") && this.draggedQBlock) {
             this.draggedQBlock.unhighlight();
-            this.draggedQBlock.place(this.circuit_area, this.startDragX, this.startDragY);
+            this.draggedQBlock.place(this.startDragX, this.startDragY);
             document.removeEventListener("mousemove", this.dragMove);
             document.removeEventListener("keydown", this.dragKeydown);
             document.removeEventListener("dblclick", this.dragKeydown);
@@ -357,6 +403,26 @@ class ActionHandler {
             toolState.toSelect();
         }
     }
+
+    getQCircuit() {
+        const qCircuit = {};
+        const sproject = project.save
+        for(key in sproject){
+            qCircuit[key] = sproject[key];
+        }
+        qCircuit.blocks = {};
+        for(const qBlock in QBlock.blocks) {
+            if(QBlock.blocks[qBlock].shadow === false) {
+                qCircuit.blocks[qBlock] = QBlock.blocks[qBlock]
+            }
+        }
+        qCircuit.wire_session = qWireSession.forSave();
+        console.log(JSON.stringify(qCircuit));
+        globalEvents.emit("sanitCheck", qCircuit);  // Event an alle Listener senden
+        return qCircuit;
+    }
+    
+
 
     static __diconnectWire(QBlock_Port) {
         const [, blockId, portnum] = QBlock_Port.split("_");

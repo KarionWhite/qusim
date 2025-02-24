@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/labstack/gommon/log"
 )
@@ -61,15 +63,15 @@ func Save(fileName string, project Project_Space, overwrite bool) error {
 		log.Error("Save&Load->save(): Fehler beim Lesen der Projekte:  " + GetProjectsPath() + ":  " + err1.Error())
 	}
 	for _, file := range files {
-		if filepath.Ext(file.Name()) == ".qusim" && file.Name() != fileName {
+		if filepath.Ext(file.Name()) == ".qusim" && file.Name() == fileName {
 			exist = true
 		}
 	}
-	if overwrite == false && exist {
+	if !overwrite && exist {
 		//throw error
 		log.Error("Save&Load->save(): Fehler beim Speichern des Projekts:  " + fileName + ":  Projekt existiert bereits.")
 		return os.ErrExist
-	} else if overwrite == true && exist {
+	} else if overwrite && exist {
 		//delete the file
 		err2 := os.Remove(filepath.Join(GetProjectsPath(), fileName))
 		if err2 != nil {
@@ -84,7 +86,7 @@ func Save(fileName string, project Project_Space, overwrite bool) error {
 		return err1
 	}
 	defer file.Close()
-	data, err2 := json.Marshal(project_space)
+	data, err2 := json.MarshalIndent(project_space, "", "    ")
 	if err2 != nil {
 		log.Error("Save&Load->save(): Fehler beim Serialisieren des Projekt-Files:  " + GetProjectsPath() + "/" + fileName + ".qusim :   " + err2.Error())
 		return err2
@@ -98,23 +100,99 @@ func Save(fileName string, project Project_Space, overwrite bool) error {
 }
 
 func load(filename string) error {
-	file, err1 := os.Open(filepath.Join(GetProjectsPath(), filename))
+	file, err1 := os.ReadFile(filepath.Join(GetProjectsPath(), filename))
 	if err1 != nil {
 		log.Error("Save&Load->load(): Fehler beim Öffnen des Projekt-Files:  " + filename + ": " + err1.Error())
 		return err1
 	}
-	defer file.Close()
-	data, err2 := os.ReadFile(filename)
-	if err2 != nil {
-		log.Error("Save&Load->load(): Fehler beim Lesen des Projekt-Files:  " + filename + " : " + err2.Error())
-		return err2
-	}
-	err3 := json.Unmarshal(data, &project_space)
+	err3 := json.Unmarshal(file, &project_space)
 	if err3 != nil {
 		log.Error("Save&Load->load(): Fehler beim Lesen des Projekt-Files:  " + filename + " : " + err3.Error())
 		return err3
 	}
 	return nil
+}
+
+/*
+Struktur für das Erstellen eines Projekts.
+*/
+type ProjectCreate struct {
+	Project_name        string `json:"project_name"`
+	Project_description string `json:"project_description"`
+}
+
+func CreateProject(data json.RawMessage) (bool, string) {
+	var projectData ProjectCreate
+	var awnser string
+	err := json.Unmarshal(data, &projectData)
+	if err != nil {
+		log.Error("Save&Load->CreateProject(): Fehler beim Erstellen des Projekts: " + err.Error())
+		return false, "Fehler beim Erstellen des Projekts: " + err.Error()
+	}
+	project_space.Name = projectData.Project_name
+	project_space.Created_At = time.Now()
+	project_space.Updated_At = time.Now()
+	project_space.Description = projectData.Project_description
+	project_space.Blocks = make(map[string]Block)
+	project_space.WireSession = make(map[string]WireSession)
+	project_space.Qubits = make(map[string]Qubit)
+
+	var project_path_name string = projectData.Project_name
+	if !strings.HasSuffix(project_path_name, ".qusim") {
+		project_path_name = project_path_name + ".qusim"
+	}
+
+	err = Save(project_path_name, project_space, false)
+	if err != nil {
+		log.Error("Save&Load->CreateProject(): Fehler beim Erstellen des Projekts: " + err.Error())
+		return false, "Fehler beim Erstellen des Projekts: " + err.Error()
+	}
+	awnser = "Projekt " + projectData.Project_name + " wurde erfolgreich erstellt."
+	Select_Project(projectData.Project_name)
+	return true, awnser
+}
+
+func SaveProject(data json.RawMessage) (bool, string) {
+	var awnser string
+	var saving_space Project_Space
+	err := json.Unmarshal(data, &saving_space)
+	if err != nil {
+		log.Error("Save&Load->SaveProject(): Fehler beim Speichern des Projekts: " + err.Error())
+		return false, "Fehler beim Speichern des Projekts: " + err.Error()
+	}
+	if saving_space.Name == "" {
+		log.Error("Save&Load->SaveProject(): Fehler beim Speichern des Projekts: Projektname fehlt.")
+		return false, "create_project"
+	}
+	err = Save(GetCurrentProject(), saving_space, true)
+	if err != nil {
+		log.Error("Save&Load->SaveProject(): Fehler beim Speichern des Projekts: " + err.Error())
+		return false, "Fehler beim Speichern des Projekts: " + err.Error()
+	}
+	awnser = "Projekt " + GetCurrentProject() + " wurde erfolgreich gespeichert."
+	return true, awnser
+}
+
+type GetProjectsJ struct {
+	Projects []Project_Space `json:"projects"`
+}
+
+func GetProjects() ([]byte, error) {
+	var projects []GetProjectsJ
+	var projectList, err = Get_Projects()
+	if err != nil {
+		log.Error("Save&Load->GetProjects(): Fehler beim Lesen der Projekte: " + err.Error())
+		return nil, err
+	}
+	for _, project := range projectList {
+		err := load(project)
+		if err != nil {
+			log.Error("Save&Load->GetProjects(): Fehler beim Laden des Projekts: " + err.Error())
+			return nil, err
+		}
+		projects = append(projects, GetProjectsJ{Projects: []Project_Space{project_space}})
+	}
+	return json.Marshal(projects)
 }
 
 /*
@@ -131,7 +209,7 @@ func Get_Projects() ([]string, error) {
 	}
 	projectNames := []string{}
 	for _, file := range projectFiles {
-		if file.IsDir() == false && filepath.Ext(file.Name()) == ".qusim" {
+		if !file.IsDir() && filepath.Ext(file.Name()) == ".qusim" {
 			projectNames = append(projectNames, file.Name())
 		}
 	}
@@ -150,7 +228,7 @@ func Select_Project(projectName string) error {
 		return err1
 	}
 	for _, project := range prjects {
-		if project == projectName {
+		if project == projectName || project == projectName+".qusim" {
 			err2 := load(project)
 			if err2 != nil {
 				log.Error("Save&Load->Select_Project(): Fehler beim Laden des Projekts: " + err2.Error())

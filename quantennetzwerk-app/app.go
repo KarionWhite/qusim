@@ -45,8 +45,16 @@ func (a *App) PostRequest(data PostJSONData) (string, error) {
 		taskhandler.SetHasChanged(jsonData.Data)
 	case "set_project":
 		//taskhandler.SetProject()
-	case "save":
-		//taskhandler.Save()
+	case "save_project":
+		var success, awnser = taskhandler.SaveProject(jsonData.Data)
+		response.Success = success
+		response.Task = "save_project"
+		response.Data = awnser
+	case "create_project":
+		var success, awnser = taskhandler.CreateProject(jsonData.Data)
+		response.Success = success
+		response.Task = "create_project"
+		response.Data = awnser
 	case "error":
 		response.Success = false
 		response.Task = "unmarshalling_error"
@@ -67,28 +75,25 @@ func (a *App) PostRequest(data PostJSONData) (string, error) {
 // function for GET requests from the frontend
 func (a *App) GetRequest(data GetJsonData) (string, error) {
 	var response GetJsonData
-
-	switch data.Task {
+	var jsonResponse []byte
+	response.Success = false
+	response.Task = "Task not found"
+	response.Data = nil
+	jsonResponse, err := json.Marshal(response)
+	jsonData := GetJsonData(data)
+	switch strings.TrimSpace(jsonData.Task) {
 	case "example":
 		//Do something
 	case "get_projects":
-		//Get list of projects
+		jsonResponse, err = taskhandler.GetProjects()
 	case "load":
 		//taskhandler.Load(data.Data)
 	case "get_quSim_data":
 		//taskhandler.GetQuSimData()
-	case "error":
-		response.Success = false
-		response.Task = "unmarshalling_error"
-		response.Data = "Error while unmarshalling the data! Please check the data!"
 	default:
 		log.Error("app.go::GetRequest-> Task not found")
-		response.Success = false
-		response.Task = "Task not found"
-		response.Data = nil
 	}
 	//Marshal the response
-	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		log.Error("app.go::GetRequest-> error while marshalling the response: %w", err)
 	}

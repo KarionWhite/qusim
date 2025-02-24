@@ -62,6 +62,7 @@ class QBlock {
         rect.setAttribute("fill", "white");
         rect.setAttribute("stroke", "black");
         rect.setAttribute("stroke-width", "1");
+        rect.style.zIndex = 3;
         if (has_startDrag) {
             rect.addEventListener("mousedown", (event) => {
                 globalEvents.emit("startDrag", event, id);
@@ -96,6 +97,7 @@ class QBlock {
                 globalEvents.emit("placeBlock", event, id);
             });
         }
+        text.style.zIndex = 4;
         elements.push(text);
 
         // Highlight Box
@@ -104,7 +106,7 @@ class QBlock {
         highlight.setAttribute("x", x-10);
         highlight.setAttribute("y", y-10);
         highlight.setAttribute("width", width + 20);
-        highlight.setAttribute("height", height + 30);
+        highlight.setAttribute("height", height + 20);
         highlight.setAttribute("fill", "transparent");
         highlight.setAttribute("stroke", "blue");
         highlight.setAttribute("stroke-width", "2");
@@ -114,6 +116,7 @@ class QBlock {
                 globalEvents.emit("startDrag", event, id);
             });
         }
+        highlight.style.zIndex = 2;
         elements.push(highlight);
 
         // Inputs rote Kreise, weil noch keine Verbindung besteht
@@ -122,11 +125,12 @@ class QBlock {
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             circle.setAttribute("id", inputID);
             circle.setAttribute("cx", x);
-            circle.setAttribute("cy",this.y + 20 * i + in_out_offset -5);
+            circle.setAttribute("cy",y + 20 * i + in_out_offset -5);
             circle.setAttribute("r", "5");
             circle.setAttribute("fill", "red");
             circle.setAttribute("stroke", "black");
             circle.setAttribute("stroke-width", "1");
+            circle.style.zIndex = 2;
             elements.push(circle);
             //Unsichtbare Hitbox zum Klicken auf den Input
             const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -141,7 +145,9 @@ class QBlock {
                     globalEvents.emit("startWire", event, inputID)
                 });
             }
+            hitbox.style.zIndex = 2;
             if (!shadow) elements.push(hitbox);
+
 
         }
 
@@ -150,11 +156,13 @@ class QBlock {
             const outputID = `output_${id}_${i}`;
             const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
             polygon.setAttribute("id", outputID);
-            polygon.setAttribute("points", `${this.x + width - 10},${this.y + 20 * i + in_out_offset - 10} ${this.x + width},${this.y + 20 * i + in_out_offset - 5} ${this.x +width - 10},${this.y +20 * i + in_out_offset}`);
+            polygon.setAttribute("points", `${x + width - 10},${y + 20 * i + in_out_offset - 10} ${x + width},${y + 20 * i + in_out_offset - 5} ${x +width - 10},${y +20 * i + in_out_offset}`);
             polygon.setAttribute("fill", "red");
             polygon.setAttribute("stroke", "black");
             polygon.setAttribute("stroke-width", "1");
+            polygon.style.zIndex = 2;
             elements.push(polygon);
+
             //Unsichtbare Hitbox zum Klicken auf den Output
             const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             hitbox.setAttribute("id", outputID + "_hitbox"); // Korrigierte ID
@@ -168,6 +176,7 @@ class QBlock {
                     globalEvents.emit("startWire", event, outputID)
                 });
             }
+            hitbox.style.zIndex = 2;
             if (!shadow) elements.push(hitbox);
         }
 
@@ -384,8 +393,6 @@ class QBlock {
         this._isLoading = true; // Ladezustand setzen
         this.x = 0;
         this.y = 0;
-        this.inputWireIds = []; // Initialisiere als leeres Array
-        this.outputWireIds = []; // Initialisiere als leeres Array
         this.parentId = parent;
         this.parent = document.getElementById(this.parentId);
         try {
@@ -574,6 +581,16 @@ class QBlock {
             if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
                 return `output_${this.id}_${i}`;
             }
+        }
+    }
+
+    forSaving(){
+        return {
+            kind: this.kind,
+            x: Number.parseInt(this.x),
+            y: Number.parseInt(this.y),
+            inputWireIds: Number.parseInt(this.inputWireIds),
+            outputWireIds: Number.parseInt(this.outputWireIds)
         }
     }
 

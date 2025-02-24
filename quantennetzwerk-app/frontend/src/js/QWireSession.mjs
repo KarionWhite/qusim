@@ -24,9 +24,8 @@ class QWireSession {
 
     /**
      * 
-     * @param {SVGElement} parent 
      */
-    constructor(parent) {
+    constructor() {
         if(!QWireSession.qWireSession){
             QWireSession.qWireSession = this;
         }
@@ -43,6 +42,7 @@ class QWireSession {
 
     findSessionByWire(wire_id) {
         for (const session in this.sessions) {
+            if(!this.sessions[session])continue;
             const wires = this.sessions[session].wires;
             if(!wires)continue;
             for (const wire of wires) {
@@ -166,6 +166,38 @@ class QWireSession {
         if(!this.currentWire)return;
         this.currentWire.remove(this.parent);
         this.currentWire = null;
+    }
+
+    forSave(){
+        const save = {};
+        for (const sessionID in this.sessions) {
+            const session = this.sessions[sessionID];
+            save[session.id] = {
+                qbit_start: session.qbit_start,
+                qbit_end: session.qbit_end,
+                wires: []
+            };
+            for (const wire of session.wires) {
+                if(wire.shadow)continue;
+                save[session.id].wires.push(wire.forSave());
+            }
+        }
+        return save;
+    }
+
+    load(save){
+        for (const sessionID in save) {
+            const session = save[sessionID];
+            this.sessions[sessionID] = {
+                qbit_start: session.qbit_start,
+                qbit_end: session.qbit_end,
+                wires: []
+            };
+            for (const wire of session.wires) {
+                this.sessions[sessionID].wires.push(new QWire(wire.x, wire.y, wire.direction));
+            }
+        }
+        this.placeWires();
     }
 
 }

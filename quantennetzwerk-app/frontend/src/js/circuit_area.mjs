@@ -1,3 +1,4 @@
+import globalEvents from "./EventEmitter.mjs";
 /**
  * @module circuit_area
  * @description Creates a dynamic, scrollable dot grid using an optimized SVG pattern.
@@ -22,6 +23,29 @@ class CircuitArea {
                 console.log(`Click at ${gridX}, ${gridY}`);
             }
         });
+        globalEvents.on("sanityError", this.pop_Error);
+    }
+
+    pop_Error = (msg, data) => {
+        const messageBox = document.createElement("div");
+        messageBox.classList.add("message-box");
+        const message = document.createElement("p");
+        message.innerText = msg;
+        messageBox.appendChild(message);
+        for(const d of data){
+            const element = document.createElement("p");
+            element.innerText = d;
+            messageBox.appendChild(element);
+        }
+        const returnButton = document.createElement("button");
+        returnButton.innerText = "Return";
+        returnButton.addEventListener("click", () => {
+            messageBox.remove();
+            this.svgGrid.removeAttribute("hidden");
+        });
+        messageBox.appendChild(returnButton);
+        this.svgGrid.setAttribute("hidden", true);
+        this.circuitAreaElement.appendChild(messageBox);
     }
 
     createGrid() {
