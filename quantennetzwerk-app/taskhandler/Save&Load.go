@@ -98,8 +98,22 @@ func Save(fileName string, project Project_Space, overwrite bool) error {
 	}
 	return nil
 }
+func load(filename string) (Project_Space, error) {
+	var project Project_Space
+	file, err1 := os.ReadFile(filepath.Join(GetProjectsPath(), filename))
+	if err1 != nil {
+		log.Error("Save&Load->load(): Fehler beim Öffnen des Projekt-Files:  " + filename + ": " + err1.Error())
+		return project, err1
+	}
+	err3 := json.Unmarshal(file, &project)
+	if err3 != nil {
+		log.Error("Save&Load->load(): Fehler beim Lesen des Projekt-Files:  " + filename + " : " + err3.Error())
+		return project, err3
+	}
+	return project, nil
+}
 
-func load(filename string) error {
+func load_global(filename string) error {
 	file, err1 := os.ReadFile(filepath.Join(GetProjectsPath(), filename))
 	if err1 != nil {
 		log.Error("Save&Load->load(): Fehler beim Öffnen des Projekt-Files:  " + filename + ": " + err1.Error())
@@ -117,8 +131,10 @@ func load(filename string) error {
 Struktur für das Erstellen eines Projekts.
 */
 type ProjectCreate struct {
-	Project_name        string `json:"project_name"`
-	Project_description string `json:"project_description"`
+	Project_name        string                 `json:"project_name"`
+	Project_description string                 `json:"project_description"`
+	Blocks              map[string]Block       `json:"blocks"`
+	WireSession         map[string]WireSession `json:"wire_session"`
 }
 
 func CreateProject(data json.RawMessage) (bool, string) {
@@ -133,8 +149,8 @@ func CreateProject(data json.RawMessage) (bool, string) {
 	project_space.Created_At = time.Now()
 	project_space.Updated_At = time.Now()
 	project_space.Description = projectData.Project_description
-	project_space.Blocks = make(map[string]Block)
-	project_space.WireSession = make(map[string]WireSession)
+	project_space.Blocks = projectData.Blocks
+	project_space.WireSession = projectData.WireSession
 	project_space.Qubits = make(map[string]Qubit)
 
 	var project_path_name string = projectData.Project_name
@@ -185,12 +201,12 @@ func GetProjects() ([]byte, error) {
 		return nil, err
 	}
 	for _, project := range projectList {
-		err := load(project)
+		jproject, err := load(project)
 		if err != nil {
 			log.Error("Save&Load->GetProjects(): Fehler beim Laden des Projekts: " + err.Error())
 			return nil, err
 		}
-		projects = append(projects, GetProjectsJ{Projects: []Project_Space{project_space}})
+		projects = append(projects, GetProjectsJ{Projects: []Project_Space{jproject}})
 	}
 	return json.Marshal(projects)
 }
@@ -229,7 +245,7 @@ func Select_Project(projectName string) error {
 	}
 	for _, project := range prjects {
 		if project == projectName || project == projectName+".qusim" {
-			err2 := load(project)
+			err2 := load_global(project)
 			if err2 != nil {
 				log.Error("Save&Load->Select_Project(): Fehler beim Laden des Projekts: " + err2.Error())
 				return err2

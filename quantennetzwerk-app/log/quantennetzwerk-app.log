@@ -172,3 +172,12 @@
 {"time":"2025-02-24T02:38:58.2746448+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"72","message":"Save&Load->save(): Fehler beim Speichern des Projekts:  Horizont.qusim:  Projekt existiert bereits."}
 {"time":"2025-02-24T02:38:58.2751496+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"147","message":"Save&Load->CreateProject(): Fehler beim Erstellen des Projekts: file already exists"}
 {"time":"2025-02-24T02:42:45.4837113+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-24T11:37:10.153625+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-24T12:53:43.5044727+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-24T13:44:50.3164249+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-24T13:54:40.686231+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"178","message":"Save&Load->SaveProject(): Fehler beim Speichern des Projekts: Projektname fehlt."}
+{"time":"2025-02-24T13:58:49.3641011+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-24T14:00:29.4722023+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-24T14:03:18.7063109+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-24T14:06:05.6730374+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-02-24T14:09:26.1488877+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}

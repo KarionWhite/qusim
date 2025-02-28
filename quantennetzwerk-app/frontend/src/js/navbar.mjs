@@ -1,5 +1,6 @@
 import { go_post_event, go_get_event} from './go_com.mjs';
 import globalEvents from './EventEmitter.mjs';
+import actionHandler from './ActionHandler.mjs';
 import project from './Project.mjs';
 
 class Navbar {
@@ -51,6 +52,11 @@ class Navbar {
         }
         project.name = data["data"]["project_name"];
         project.description = data["data"]["project_description"];
+        const qCirquit = actionHandler.getQCircuit();
+        for(const key in qCirquit){
+            data["data"][key] = qCirquit[key];
+        }
+
         go_post_event(data, (data) => {
             if(data.success){
                 console.log("Project created");
@@ -78,7 +84,7 @@ class Navbar {
 
     fillProjects = (data) => {
         const projectLists = data[0].projects;
-        console.log(projectLists);
+        console.log(data);
     };
 
     openProject = () => {
