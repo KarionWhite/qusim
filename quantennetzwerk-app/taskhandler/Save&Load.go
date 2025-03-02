@@ -145,10 +145,10 @@ func CreateProject(data json.RawMessage) (bool, string) {
 		log.Error("Save&Load->CreateProject(): Fehler beim Erstellen des Projekts: " + err.Error())
 		return false, "Fehler beim Erstellen des Projekts: " + err.Error()
 	}
-	project_space.Name = projectData.Project_name
-	project_space.Created_At = time.Now()
-	project_space.Updated_At = time.Now()
-	project_space.Description = projectData.Project_description
+	project_space.PHeader.Name = projectData.Project_name
+	project_space.PHeader.Created_At = time.Now()
+	project_space.PHeader.Updated_At = time.Now()
+	project_space.PHeader.Description = projectData.Project_description
 	project_space.Blocks = projectData.Blocks
 	project_space.WireSession = projectData.WireSession
 	project_space.Qubits = make(map[string]Qubit)
@@ -176,7 +176,7 @@ func SaveProject(data json.RawMessage) (bool, string) {
 		log.Error("Save&Load->SaveProject(): Fehler beim Speichern des Projekts: " + err.Error())
 		return false, "Fehler beim Speichern des Projekts: " + err.Error()
 	}
-	if saving_space.Name == "" {
+	if saving_space.PHeader.Name == "" {
 		log.Error("Save&Load->SaveProject(): Fehler beim Speichern des Projekts: Projektname fehlt.")
 		return false, "create_project"
 	}
@@ -190,11 +190,11 @@ func SaveProject(data json.RawMessage) (bool, string) {
 }
 
 type GetProjectsJ struct {
-	Projects []Project_Space `json:"projects"`
+	Projects []ProjectHeader `json:"projects"`
 }
 
 func GetProjects() ([]byte, error) {
-	var projects []GetProjectsJ
+	var projects []ProjectHeader
 	var projectList, err = Get_Projects()
 	if err != nil {
 		log.Error("Save&Load->GetProjects(): Fehler beim Lesen der Projekte: " + err.Error())
@@ -206,7 +206,7 @@ func GetProjects() ([]byte, error) {
 			log.Error("Save&Load->GetProjects(): Fehler beim Laden des Projekts: " + err.Error())
 			return nil, err
 		}
-		projects = append(projects, GetProjectsJ{Projects: []Project_Space{jproject}})
+		projects = append(projects, jproject.PHeader)
 	}
 	return json.Marshal(projects)
 }

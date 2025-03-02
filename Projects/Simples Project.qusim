@@ -1,9 +1,0 @@
-{
-    "name": "Simples Project",
-    "created_at": "2025-02-24T02:13:43.7496595+01:00",
-    "updated_at": "2025-02-24T02:13:43.7496595+01:00",
-    "description": "Ein ganz simples Project zum testen.",
-    "blocks": {},
-    "wire_session": {},
-    "qubits": {}
-}

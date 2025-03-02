@@ -422,7 +422,15 @@ class ActionHandler {
         return qCircuit;
     }
     
-
+    clearQCircuit() {
+        for(const key in QBlock.blocks){
+            if(QBlock.blocks[key].shadow === false){
+                QBlock.blocks[key].destroy();
+            }
+        }
+        QBlock.blocks = {};
+        qWireSession.;
+    }
 
     static __diconnectWire(QBlock_Port) {
         const [, blockId, portnum] = QBlock_Port.split("_");

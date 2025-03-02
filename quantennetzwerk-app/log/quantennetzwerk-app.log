@@ -181,3 +181,17 @@
 {"time":"2025-02-24T14:03:18.7063109+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
 {"time":"2025-02-24T14:06:05.6730374+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
 {"time":"2025-02-24T14:09:26.1488877+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T14:30:17.4189341+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T14:30:30.5339844+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T14:30:51.2909474+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T17:06:24.2086101+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T17:07:45.3105709+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T17:09:46.8133207+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T17:18:02.1929852+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T17:19:04.4102316+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T17:19:17.2498504+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T17:19:30.261888+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T20:18:40.4726643+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T20:18:54.1637615+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T20:19:02.4864265+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-01T20:23:26.3731271+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}

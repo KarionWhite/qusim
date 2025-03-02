@@ -69,6 +69,23 @@ class Navbar {
         });
     };
 
+    loadProject = () => {
+        actionHandler.clearQCircuit();
+        const data = {};
+        data["task"] = "load_project";
+        data["data"] = {};
+        data["data"]["project_name"] = project.name;
+        go_post_event(data, (data) => {
+            if(data.success){
+                console.log("Project loaded");
+                window.alert(data.data);
+                actionHandler.loadQCircuit(data.data);
+            }else{
+                console.error("Project loading failed");
+            }
+        });
+    };
+
     createProject = () => {
         this.main_container.setAttribute("hidden", true);
         this.open_Project.setAttribute("hidden", true);
