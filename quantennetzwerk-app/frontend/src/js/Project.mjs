@@ -13,15 +13,14 @@ class Project {
         Project.instance = this;
         this.name = "";
         this.description = "";
-        this.created_At = new Date();
-        this.updated_At = new Date();
-        this.Qubits = [];
+        this.created_at = new Date();
+        this.updated_at = new Date();
     }
 
     //!Go Funktion!!!!
     updateWindowName(){
         try{
-            WindowSetTitle(this.name);
+            document.title = "QuantenNetzwerk - " + String(this.name);
         }catch(e){
             console.error("Error updating window name");
         }
@@ -31,9 +30,8 @@ class Project {
         const data = {
             name: this.name,
             description: this.description,
-            created_At: this.created_At,
-            updated_At: this.updated_At,
-            Qubits: this.Qubits
+            created_at: this.created_at,
+            updated_at: this.updated_at,
         }
         return data
     }
@@ -41,9 +39,8 @@ class Project {
     load(json){
         this.name = json.name;
         this.description = json.description;
-        this.created_At = json.created_At;
-        this.updated_At = json.updated_At;
-        this.Qubits = json.Qubits;
+        this.created_at = json.created_at;
+        this.updated_at = json.updated_at;
         this.updateWindowName();
     }
 

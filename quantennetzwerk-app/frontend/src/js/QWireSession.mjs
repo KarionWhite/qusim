@@ -118,8 +118,11 @@ class QWireSession {
     }
 
     placeWires() {
-        for (const session of this.sessions) {
-            for (const wire of session.wires) {
+        for (const session in this.sessions) {
+            const mySession = this.sessions[session];
+            if(!mySession)continue;
+            const sessionWires = mySession.wires;
+            for (const wire of sessionWires) {
                 wire.place(this.parent);
             }
         }
@@ -156,6 +159,24 @@ class QWireSession {
         }
     }
 
+    selectSession(session){
+        const mySession = this.sessions[session];
+        if(mySession){
+            mySession.wires.forEach(wire => {
+                wire.selected();
+            });
+        }
+    }
+
+    unselectSession(session){
+        const mySession = this.sessions[session];
+        if(mySession){
+            mySession.wires.forEach(wire => {
+                wire.unselected();
+            });
+        }
+    }
+
     destroySession(session){
         if(this.sessions[session]){
             this.sessions[session].wires.forEach(wire => {
@@ -168,10 +189,20 @@ class QWireSession {
         this.currentWire = null;
     }
 
+    destroyAllSessions(){
+        for (const session in this.sessions) {
+            this.destroySession(session);
+        }
+    }
+
     forSave(){
         const save = {};
         for (const sessionID in this.sessions) {
             const session = this.sessions[sessionID];
+            if(!session)continue;
+            if(session.qbit_end === null || session.qbit_start === null){
+                continue;
+            }
             save[session.id] = {
                 qbit_start: session.qbit_start,
                 qbit_end: session.qbit_end,

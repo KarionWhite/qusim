@@ -99,6 +99,9 @@ export default class QWire {
      * @param {SVGElement} parent the parent element from which the wire is to be removed
      */
     remove(parent){
+        if(document.getElementById(`wire_${this.id}`) === null){
+            return;
+        }
         parent.removeChild(this.element[0]);
         if(!this.shadow){
             parent.removeChild(this.element[1]);
@@ -150,10 +153,14 @@ export default class QWire {
 
     selected(){
         this.element[0].setAttribute("stroke", "blue");
+        this.element[2].setAttribute("stroke", "blue");
+        this.element[2].setAttribute("stroke-opacity", 0.3);
     };
 
     unselected(){
         this.element[0].setAttribute("stroke", "black");
+        this.element[2].setAttribute("stroke", "transparent");
+        this.element[2].setAttribute("stroke-opacity", 1);
     };
 
     forSave(){

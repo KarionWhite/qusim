@@ -86,7 +86,7 @@ func Save(fileName string, project Project_Space, overwrite bool) error {
 		return err1
 	}
 	defer file.Close()
-	data, err2 := json.MarshalIndent(project_space, "", "    ")
+	data, err2 := json.MarshalIndent(project, "", "    ")
 	if err2 != nil {
 		log.Error("Save&Load->save(): Fehler beim Serialisieren des Projekt-Files:  " + GetProjectsPath() + "/" + fileName + ".qusim :   " + err2.Error())
 		return err2
@@ -115,6 +115,7 @@ func load(filename string) (Project_Space, error) {
 
 func load_global(filename string) error {
 	file, err1 := os.ReadFile(filepath.Join(GetProjectsPath(), filename))
+	project_space = Project_Space{}
 	if err1 != nil {
 		log.Error("Save&Load->load(): Fehler beim Öffnen des Projekt-Files:  " + filename + ": " + err1.Error())
 		return err1
@@ -209,6 +210,50 @@ func GetProjects() ([]byte, error) {
 		projects = append(projects, jproject.PHeader)
 	}
 	return json.Marshal(projects)
+}
+
+/*
+*
+Load Project für das Frontend
+*/
+type LoadProjectJ struct {
+	Name string `json:"project_name"`
+}
+
+type LoadedProjectJ struct {
+	Project  Project_Space `json:"project"`
+	Succes   bool          `json:"success"`
+	ErrorMsg string        `json:"error_msg"`
+}
+
+func LoadProject(data json.RawMessage) ([]byte, error) {
+	var loadedProject LoadedProjectJ
+	loadedProject.Succes = true
+	var reterr error = nil
+	var projectData LoadProjectJ
+	err := json.Unmarshal(data, &projectData)
+	if err != nil {
+		log.Error("Save&Load->LoadProject(): Fehler beim Laden des Projekts: " + err.Error())
+		loadedProject.Succes = false
+		loadedProject.ErrorMsg = "Fehler beim Laden des Projekts: " + err.Error()
+		reterr = err
+	}
+	err1 := Select_Project(projectData.Name)
+	if err1 != nil && loadedProject.Succes {
+		log.Error("Save&Load->Select_Project(): Fehler beim Laden des Projekts: " + err.Error())
+		loadedProject.Succes = false
+		loadedProject.ErrorMsg = "Fehler beim Laden des Projekts: " + err.Error()
+		reterr = err1
+	}
+	loadedProject.Project = GetProject()
+	rett, err2 := json.Marshal(loadedProject)
+	if err2 != nil {
+		log.Error("Save&Load->LoadProject(): Fehler beim Laden des Projekts: " + err.Error())
+		loadedProject.Succes = false
+		loadedProject.ErrorMsg = "Fehler beim Laden des Projekts: " + err.Error()
+		reterr = err2
+	}
+	return rett, reterr
 }
 
 /*

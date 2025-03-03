@@ -33,7 +33,10 @@ class Navbar {
         globalEvents.on("save-project-failed", this.save_project_failed);
     }
 
-    server_load_project = () => {};
+    server_load_project = (pproject) => {
+        console.log("navbar:server_load_project -> load project");
+        console.log(pproject);
+    };
 
     server_save_project = (event) => {
         console.log("navbar:server_save_project -> save project" + event);
@@ -69,17 +72,22 @@ class Navbar {
         });
     };
 
-    loadProject = () => {
+    loadProject = (project_name) => {
         actionHandler.clearQCircuit();
         const data = {};
-        data["task"] = "load_project";
+        data["task"] = "load";
         data["data"] = {};
-        data["data"]["project_name"] = project.name;
-        go_post_event(data, (data) => {
+        data["data"]["project_name"] = project_name;
+        go_get_event(data, (data) => {
             if(data.success){
                 console.log("Project loaded");
-                window.alert(data.data);
-                actionHandler.loadQCircuit(data.data);
+                actionHandler.loadQCircuit(data.project);
+                const projectList = document.getElementById("open_project_list_table");
+                if(projectList !== null){
+                    projectList.remove();
+                }
+                this.return_to_main();
+                project.load(data.project.project_header);
             }else{
                 console.error("Project loading failed");
             }
@@ -100,8 +108,56 @@ class Navbar {
     };
 
     fillProjects = (data) => {
-        const projectLists = data[0].projects;
-        console.log(data);
+        const projectList = document.getElementById("open_project_list");
+        const listContainer = document.createElement("table");
+        listContainer.classList.add("table", "table-striped", "table-bordered", "table-hover", "table-responsive");
+        listContainer.id = "open_project_list_table";
+        const listThead = document.createElement("thead");
+        const listHead = document.createElement("tr");
+        const listHead_ProjectName = document.createElement("th");
+        const listHead_ProjectCreationDate = document.createElement("th");
+        const listHead_ProjectLastChange = document.createElement("th");
+        const listHead_ProjectDescription = document.createElement("th");
+        listHead_ProjectName.innerText = "Project Name";
+        listHead_ProjectCreationDate.innerText = "Creation Date";
+        listHead_ProjectLastChange.innerText = "Last Change";
+        listHead_ProjectDescription.innerText = "Description";
+        listHead.appendChild(listHead_ProjectName);
+        listHead.appendChild(listHead_ProjectCreationDate);
+        listHead.appendChild(listHead_ProjectLastChange);
+        listHead.appendChild(listHead_ProjectDescription);
+        listThead.appendChild(listHead);
+        listContainer.appendChild(listThead);
+        const listTbody = document.createElement("tbody");
+        listTbody.classList.add("scrollable-tbody");
+        listTbody.id = "open_project_list_tbody";
+        for(const pproject of data){
+            const listRow = document.createElement("tr");
+            listRow.addEventListener("click", () => {
+                this.loadProject(pproject.name);
+            });
+            const listRow_ProjectName = document.createElement("td");
+            const listRow_ProjectCreationDate = document.createElement("td");
+            const listRow_ProjectLastChange = document.createElement("td");
+            const listRow_ProjectDescription = document.createElement("td");
+            listRow_ProjectName.innerText = pproject.name;
+            listRow_ProjectCreationDate.innerText = this.__beautifyDate(pproject.created_at);
+            listRow_ProjectLastChange.innerText = this.__beautifyDate(pproject.updated_at);
+            listRow_ProjectDescription.innerText = pproject.description;
+            listRow.appendChild(listRow_ProjectName);
+            listRow.appendChild(listRow_ProjectCreationDate);
+            listRow.appendChild(listRow_ProjectLastChange);
+            listRow.appendChild(listRow_ProjectDescription);
+            listTbody.appendChild(listRow);
+        }
+        listContainer.appendChild(listTbody);
+        projectList.prepend(listContainer);
+    };
+
+    __beautifyDate = (date) => {
+        const dateObj = new Date(date);
+        const dateString = [dateObj.getDate(), (dateObj.getMonth())+1, dateObj.getFullYear()].join(".");
+        return dateString;
     };
 
     openProject = () => {

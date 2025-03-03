@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-import tensorflow as tf
 import numpy as np
 import cirq as cq
 
@@ -71,6 +70,7 @@ class qusim:
         Zudem lesen wir es gleich in eine cirq System ein.
         @return: True, wenn die Daten korrekt sind, sonst False.
         """
+        pass
 
 
         

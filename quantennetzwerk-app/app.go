@@ -73,21 +73,21 @@ func (a *App) PostRequest(data PostJSONData) (string, error) {
 }
 
 // function for GET requests from the frontend
-func (a *App) GetRequest(data GetJsonData) (string, error) {
+func (a *App) GetRequest(data PostJSONData) (string, error) {
 	var response GetJsonData
 	var jsonResponse []byte
 	response.Success = false
 	response.Task = "Task not found"
 	response.Data = nil
 	jsonResponse, err := json.Marshal(response)
-	jsonData := GetJsonData(data)
+	jsonData := PostJSONData(data)
 	switch strings.TrimSpace(jsonData.Task) {
 	case "example":
 		//Do something
 	case "get_projects":
 		jsonResponse, err = taskhandler.GetProjects()
 	case "load":
-		//taskhandler.Load(data.Data)
+		jsonResponse, err = taskhandler.LoadProject(jsonData.Data)
 	case "get_quSim_data":
 		//taskhandler.GetQuSimData()
 	default:
@@ -108,7 +108,23 @@ func NewApp() *App {
 
 // startup is called at application startup
 func (a *App) startup(ctx context.Context) {
-	// Perform your setup here
+	exePath, err := os.Executable()
+	if err != nil {
+		log.Error("app.go::startup-> error while getting the executable path: %w", err)
+	}
+	print(exePath)
+	log.Debug("app.go::startup-> Application is starting with executable path: " + exePath)
+	python_path := filepath.Dir(exePath)    //bin
+	python_path = filepath.Dir(python_path) //build
+	python_path = filepath.Dir(python_path) //quantennetzwerk-app
+	python_path = filepath.Dir(python_path) //Qusim
+	python_path = filepath.Join(python_path, "quSimPy")
+	python_path = filepath.Join(python_path, "dist")
+	python_path = filepath.Join(python_path, "main.exe")
+	log.Debug("app.go::startup-> Python path: " + python_path)
+	//Start Python-API
+	go taskhandler.StartPythonAPI(python_path)
+
 	a.ctx = ctx
 
 }

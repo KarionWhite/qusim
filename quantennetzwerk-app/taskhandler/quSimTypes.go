@@ -19,11 +19,11 @@ type ProjectHeader struct {
 }
 
 type Block struct {
-	Type          string `json:"type"`
+	Type          string `json:"kind"`
 	X             int    `json:"x"`
 	Y             int    `json:"y"`
-	InputWireIDs  []int  `json:"input_wire_ids"`
-	OutputWireIDs []int  `json:"output_wire_ids"`
+	InputWireIDs  []int  `json:"inputWireIds"`
+	OutputWireIDs []int  `json:"outputWireIds"`
 }
 
 type WireSession struct {

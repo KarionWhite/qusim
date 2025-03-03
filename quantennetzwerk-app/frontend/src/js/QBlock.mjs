@@ -386,10 +386,15 @@ class QBlock {
         return QBlock.qblocks;
     }
 
-    constructor(kind, shadow = false, parent = "toolbox_grid") {
+    constructor(kind, shadow = false, parent = "toolbox_grid",force_id=false,id=0) {
         this.kind = kind;
         this.shadow = shadow;
-        this.id = QBlock.getNextId();
+        if(force_id){
+            this.id = id;
+            QBlock.__nextId = Math.max(Number.parseInt(QBlock.__nextId),Number.parseInt(id)+1);
+        }else{
+            this.id = QBlock.getNextId();
+        }
         this._isLoading = true; // Ladezustand setzen
         this.x = 0;
         this.y = 0;
@@ -509,8 +514,8 @@ class QBlock {
      * Zerstört den QBlock und entfernt ihn aus dem DOM
      */
     destroy() {
-        this.remove();
         QBlock.deleteBlockById(this.id);
+        this.remove();
     }
 
     highlight() {

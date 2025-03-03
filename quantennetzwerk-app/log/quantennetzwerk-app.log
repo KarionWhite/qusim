@@ -195,3 +195,93 @@
 {"time":"2025-03-01T20:18:54.1637615+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
 {"time":"2025-03-01T20:19:02.4864265+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
 {"time":"2025-03-01T20:23:26.3731271+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T18:42:29.9391965+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T18:42:42.9843528+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T18:43:06.6735298+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T19:06:13.6068788+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T19:06:25.8186928+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T19:06:37.563604+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T19:16:31.9613565+01:00","level":"ERROR","prefix":"-","file":"app.go","line":"94","message":"app.go::GetRequest-> Task not found"}
+{"time":"2025-03-02T19:17:57.3745416+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T19:18:48.4408247+01:00","level":"ERROR","prefix":"-","file":"app.go","line":"94","message":"app.go::GetRequest-> Task not found"}
+{"time":"2025-03-02T19:25:24.7027577+01:00","level":"ERROR","prefix":"-","file":"app.go","line":"94","message":"app.go::GetRequest-> Task not found"}
+{"time":"2025-03-02T19:58:26.5171599+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T19:59:23.5231641+01:00","level":"ERROR","prefix":"-","file":"app.go","line":"94","message":"app.go::GetRequest-> Task not found"}
+{"time":"2025-03-02T20:01:06.6587887+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"235","message":"Save&Load->LoadProject(): Fehler beim Laden des Projekts: unexpected end of JSON input"}
+{"time":"2025-03-02T20:04:50.4651967+01:00","level":"ERROR","prefix":"-","file":"app.go","line":"98","message":"app.go::GetRequest-> error while marshalling the response: %wunexpected end of JSON input"}
+{"time":"2025-03-02T20:30:10.2342828+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T20:31:44.1717894+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T21:07:00.8674866+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T21:14:40.6696388+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T22:16:00.3483364+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T22:29:10.6535082+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"180","message":"Save&Load->SaveProject(): Fehler beim Speichern des Projekts: Projektname fehlt."}
+{"time":"2025-03-02T22:34:37.3275949+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T22:41:28.3631893+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T22:41:32.1580929+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"110","message":"Save&Load->load(): Fehler beim Lesen des Projekt-Files:  X Gatter.qusim : unexpected end of JSON input"}
+{"time":"2025-03-02T22:41:32.1580929+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"206","message":"Save&Load->GetProjects(): Fehler beim Laden des Projekts: unexpected end of JSON input"}
+{"time":"2025-03-02T22:41:32.1580929+01:00","level":"ERROR","prefix":"-","file":"app.go","line":"98","message":"app.go::GetRequest-> error while marshalling the response: %wunexpected end of JSON input"}
+{"time":"2025-03-02T22:41:53.3038416+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"110","message":"Save&Load->load(): Fehler beim Lesen des Projekt-Files:  X Gatter.qusim : unexpected end of JSON input"}
+{"time":"2025-03-02T22:41:53.3038416+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"206","message":"Save&Load->GetProjects(): Fehler beim Laden des Projekts: unexpected end of JSON input"}
+{"time":"2025-03-02T22:41:53.3043723+01:00","level":"ERROR","prefix":"-","file":"app.go","line":"98","message":"app.go::GetRequest-> error while marshalling the response: %wunexpected end of JSON input"}
+{"time":"2025-03-02T22:42:57.6784677+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"110","message":"Save&Load->load(): Fehler beim Lesen des Projekt-Files:  X Gatter.qusim : unexpected end of JSON input"}
+{"time":"2025-03-02T22:42:57.6789902+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"206","message":"Save&Load->GetProjects(): Fehler beim Laden des Projekts: unexpected end of JSON input"}
+{"time":"2025-03-02T22:42:57.6789902+01:00","level":"ERROR","prefix":"-","file":"app.go","line":"98","message":"app.go::GetRequest-> error while marshalling the response: %wunexpected end of JSON input"}
+{"time":"2025-03-02T22:44:32.6508716+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"110","message":"Save&Load->load(): Fehler beim Lesen des Projekt-Files:  X Gatter.qusim : unexpected end of JSON input"}
+{"time":"2025-03-02T22:45:05.5377305+01:00","level":"ERROR","prefix":"-","file":"Save&Load.go","line":"206","message":"Save&Load->GetProjects(): Fehler beim Laden des Projekts: unexpected end of JSON input"}
+{"time":"2025-03-02T22:45:05.5382366+01:00","level":"ERROR","prefix":"-","file":"app.go","line":"98","message":"app.go::GetRequest-> error while marshalling the response: %wunexpected end of JSON input"}
+{"time":"2025-03-02T22:46:53.9659296+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T23:06:36.2749602+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T23:42:59.8992286+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-02T23:43:00.2174044+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: %sG:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T00:21:12.2586256+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T00:21:12.5669634+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T00:21:12.5674875+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T00:21:12.9788632+01:00","level":"ERROR","prefix":"-","file":"quSimPY.go","line":"29","message":"taskhandler::StartPythonAPI-> error while starting the Python API: %wexit status 0xc0000135"}
+{"time":"2025-03-03T00:21:52.9809766+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T00:21:59.5827085+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T00:22:04.7893776+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T00:24:30.4015021+01:00","level":"ERROR","prefix":"-","file":"quSimPY.go","line":"29","message":"taskhandler::StartPythonAPI-> error while starting the Python API: %wexit status 0xc0000135"}
+{"time":"2025-03-03T00:26:38.5302492+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T00:28:04.8372434+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T00:28:10.2839727+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T00:28:10.2844767+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T00:29:11.2107667+01:00","level":"ERROR","prefix":"-","file":"quSimPY.go","line":"29","message":"taskhandler::StartPythonAPI-> error while starting the Python API: %wexit status 0xc0000135"}
+{"time":"2025-03-03T00:33:24.5241611+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T00:33:24.8297215+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T00:33:24.8297215+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T00:41:16.8916425+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T00:41:17.2042479+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T00:41:17.2042479+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T00:56:01.0626411+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T00:56:01.4802022+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T00:56:01.4844294+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T00:56:24.7684776+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T00:56:25.059151+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T00:56:25.059151+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T00:59:17.7081581+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T00:59:18.0034071+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T00:59:18.0039351+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T00:59:43.0176646+01:00","level":"ERROR","prefix":"-","file":"quSimPY.go","line":"34","message":"taskhandler::StartPythonAPI-> error while checking if the python API is healthy: %wGet \"http://localhost:8000/\": dial tcp [::1]:8000: connectex: No connection could be made because the target machine actively refused it."}
+{"time":"2025-03-03T01:00:38.606902+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T01:00:38.906662+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T01:00:38.906662+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T01:00:56.6978015+01:00","level":"ERROR","prefix":"-","file":"quSimPY.go","line":"34","message":"taskhandler::StartPythonAPI-> error while checking if the python API is healthy: %wGet \"http://localhost:8000/\": dial tcp [::1]:8000: connectex: No connection could be made because the target machine actively refused it."}
+{"time":"2025-03-03T01:05:23.7241108+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T01:05:24.0434823+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T01:05:24.0440055+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T01:05:41.8258414+01:00","level":"FATAL","prefix":"-","file":"quSimPY.go","line":"43","message":"taskhandler::StartPythonAPI-> process exited with error: exit status 2"}
+{"time":"2025-03-03T01:08:13.6548799+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T01:08:14.8942013+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T01:08:14.8947276+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T01:08:30.6623781+01:00","level":"FATAL","prefix":"-","file":"quSimPY.go","line":"44","message":"taskhandler::StartPythonAPI-> process exited with error: exit status 1"}
+{"time":"2025-03-03T01:10:41.4500458+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T01:10:41.7452694+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T01:10:41.7457919+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T01:10:49.5905399+01:00","level":"FATAL","prefix":"-","file":"quSimPY.go","line":"30","message":"taskhandler::StartPythonAPI-> process exited with error: exit status 1"}
+{"time":"2025-03-03T01:48:20.0395639+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T01:48:20.3990288+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T01:48:20.3995521+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"123","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\main.py"}
+{"time":"2025-03-03T01:48:35.1671016+01:00","level":"FATAL","prefix":"-","file":"quSimPY.go","line":"30","message":"taskhandler::StartPythonAPI-> process exited with error: exit status 1"}
+{"time":"2025-03-03T02:12:59.5501187+01:00","level":"INFO","prefix":"-","file":"app.go","line":"105","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-03T02:13:00.070183+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"116","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-03T02:13:00.0707064+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"124","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\dist\\main.exe"}
