@@ -12,7 +12,7 @@
     <script src="/Bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/js/toolmain.mjs" type="module"></script>
 </head>
-<body>
+<body id="main-body">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -57,61 +57,64 @@
             </div>
         </div>
     </nav>
-
-    <div class="container-fluid" id="main-container">
-        <div class="row">
-            <div class="col-md-2">
-                <div id="toolbox">
-                    <h5>Toolbox</h5>
-                    <div class="list-group">
-                        <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
-                            id="tool_info">
-                            Info
-                        </button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
-                            id="tool_select">
-                            Maus
-                        </button>
-                        <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
-                            id="tool_wire">
-                            Verdrahten
-                        </button>
-                        <div class="qgates-list">
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_qinput">QInput</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_identity">Identity</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_hadamard">Hadamar</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_pauli_x">Pauli X</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_pauli_y">Pauli Y</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_pauli_z">Pauli Z</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_cnot">CNOT</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_swap">Swap</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_toffoli">Toffoli</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_fredkin">Fredkin</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button"
-                                id="tool_measure">Measure</button>
-                            <button type="button" class="list-group-item list-group-item-action tool_button" id="tool_xgate"
-                                hidden>XGate</button>
+    <fieldset id="main-fieldset">
+        <div class="container-fluid" id="main-container">
+            <div class="row">
+                <div class="col-md-2">
+                    <div id="toolbox">
+                        <h5>Toolbox</h5>
+                        <div class="list-group">
+                            <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
+                                id="tool_info">
+                                Info
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
+                                id="tool_select">
+                                Maus
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action tool_button" aria-current="true"
+                                id="tool_wire">
+                                Verdrahten
+                            </button>
+                            <div class="qgates-list">
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_qinput">QInput</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_identity">Identity</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_hadamard">Hadamar</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_pauli_x">Pauli X</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_pauli_y">Pauli Y</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_pauli_z">Pauli Z</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_cnot">CNOT</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_swap">Swap</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_toffoli">Toffoli</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_fredkin">Fredkin</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button"
+                                    id="tool_measure">Measure</button>
+                                <button type="button" class="list-group-item list-group-item-action tool_button" id="tool_xgate"
+                                    hidden>XGate</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-10">
-                <div id="circuit-area">
+                <div class="col-md-10">
+                    <div id="circuit-area">
 
+                    </div>
                 </div>
             </div>
+            <div class="container-fluid" id="waiting" hidden>
+            </div>
         </div>
-    </div>
+    </fieldset>
     <div  class="container-fluid" id="create_project" hidden>
         <div class="row">
             <div class="col-md-12">

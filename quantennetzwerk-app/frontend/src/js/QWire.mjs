@@ -74,8 +74,15 @@ export default class QWire {
      * @param {number} y the position of the wire on its vertical axis in pixels from top to bottom (y-axis)
      * @param {Array[number, number]} direction the direction of the wire as an array of two numbers. 
      */
-    constructor(x, y, direction,shadow=false) {
-        this.id = QWire.nextId++;
+    constructor(x, y, direction,shadow=false, overwriteID=false, id=null){
+        if(overwriteID){
+            this.id = id;
+            if(QWire.nextId <= id){
+                QWire.nextId = id + 1;
+            }
+        }else{
+            this.id = QWire.nextId++;
+        }
         this.x = x;
         this.y = y;
         this.direction = direction;

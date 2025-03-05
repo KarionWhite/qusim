@@ -1,0 +1,2 @@
+Backend tkagg is interactive backend. Turning interactive mode on.
+INFO:     127.0.0.1:35490 - "GET /shutdown HTTP/1.1" 200 OK

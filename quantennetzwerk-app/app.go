@@ -28,9 +28,9 @@ type PostJSONData struct {
 
 // GetJsonData represents the data that is sent to the frontend
 type GetJsonData struct {
-	Task    string      `json:"task"`
-	Success bool        `json:"success"`
-	Data    interface{} `json:"data"`
+	Task    string `json:"task"`
+	Success bool   `json:"success"`
+	Data    any    `json:"data"`
 }
 
 // function for POST requests from the frontend
@@ -88,8 +88,10 @@ func (a *App) GetRequest(data PostJSONData) (string, error) {
 		jsonResponse, err = taskhandler.GetProjects()
 	case "load":
 		jsonResponse, err = taskhandler.LoadProject(jsonData.Data)
-	case "get_quSim_data":
-		//taskhandler.GetQuSimData()
+	case "simulate":
+		jsonResponse, err = taskhandler.Simulate(jsonData.Data)
+	case "pollSimulation":
+		jsonResponse, err = taskhandler.PollSimulation(jsonData.Data)
 	default:
 		log.Error("app.go::GetRequest-> Task not found")
 	}
@@ -104,6 +106,12 @@ func (a *App) GetRequest(data PostJSONData) (string, error) {
 func NewApp() *App {
 	log.Info("app.go::NewApp-> Creating a new App")
 	return &App{}
+}
+
+// shutdown is called at application shutdown
+func (a *App) shutdown(ctx context.Context) {
+	taskhandler.Shutdown()
+	a.ctx = ctx
 }
 
 // startup is called at application startup
@@ -122,23 +130,11 @@ func (a *App) startup(ctx context.Context) {
 	python_path = filepath.Join(python_path, "dist")
 	python_path = filepath.Join(python_path, "main.exe")
 	log.Debug("app.go::startup-> Python path: " + python_path)
-	//Start Python-API
-	go taskhandler.StartPythonAPI(python_path)
+	//Start Python-API: Zu Test Zwecken auskommentiert
+	//go taskhandler.StartPythonAPI(python_path)
 
 	a.ctx = ctx
 
-}
-
-// beforeClose is called when the application is about to quit,
-// either by clicking the window close button or calling runtime.Quit.
-// Returning true will cause the application to continue, false will continue shutdown as normal.
-func (a *App) beforeClose(_ context.Context) (prevent bool) {
-	if taskhandler.GetHasChanged() {
-		//save the changes
-		//TODO
-	}
-	//Shutdown Python-API
-	return false
 }
 
 func (a *App) RenderTemplate(templateName string, ctx *exec.Context) (string, error) {

@@ -1,0 +1,178 @@
+{
+    "project_header": {
+        "name": "Bell-Zustand-Erzeuger",
+        "created_at": "2025-03-05T18:16:44.422404+01:00",
+        "updated_at": "2025-03-05T18:16:44.422404+01:00",
+        "description": "Wir erzeugen mit dieser Schaltung einen Bell-Zustand (einen maximal verschränkten Zustand)"
+    },
+    "blocks": {
+        "1": {
+            "kind": "qinput",
+            "x": 170,
+            "y": 130,
+            "inputWireIds": [],
+            "outputWireIds": [
+                5
+            ]
+        },
+        "2": {
+            "kind": "qinput",
+            "x": 170,
+            "y": 250,
+            "inputWireIds": [],
+            "outputWireIds": [
+                1
+            ]
+        },
+        "4": {
+            "kind": "hadamard",
+            "x": 290,
+            "y": 130,
+            "inputWireIds": [
+                6
+            ],
+            "outputWireIds": [
+                7
+            ]
+        },
+        "6": {
+            "kind": "cnot",
+            "x": 450,
+            "y": 130,
+            "inputWireIds": [
+                8,
+                4
+            ],
+            "outputWireIds": [
+                9,
+                0
+            ]
+        },
+        "8": {
+            "kind": "measure",
+            "x": 670,
+            "y": 130,
+            "inputWireIds": [
+                10
+            ],
+            "outputWireIds": []
+        }
+    },
+    "wire_session": {
+        "1": {
+            "qbit_start": "output_2_0",
+            "qbit_end": "input_6_1",
+            "wires": [
+                {
+                    "id": 1,
+                    "x": 230,
+                    "y": 290,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 2,
+                    "x": 231,
+                    "y": 290,
+                    "direction": [
+                        180,
+                        0
+                    ]
+                },
+                {
+                    "id": 3,
+                    "x": 411,
+                    "y": 290,
+                    "direction": [
+                        0,
+                        -100
+                    ]
+                },
+                {
+                    "id": 4,
+                    "x": 411,
+                    "y": 190,
+                    "direction": [
+                        40,
+                        0
+                    ]
+                }
+            ]
+        },
+        "2": {
+            "qbit_start": "output_1_0",
+            "qbit_end": "input_4_0",
+            "wires": [
+                {
+                    "id": 5,
+                    "x": 230,
+                    "y": 170,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 6,
+                    "x": 231,
+                    "y": 170,
+                    "direction": [
+                        60,
+                        0
+                    ]
+                }
+            ]
+        },
+        "3": {
+            "qbit_start": "output_4_0",
+            "qbit_end": "input_6_0",
+            "wires": [
+                {
+                    "id": 7,
+                    "x": 350,
+                    "y": 170,
+                    "direction": [
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "id": 8,
+                    "x": 350,
+                    "y": 170,
+                    "direction": [
+                        100,
+                        0
+                    ]
+                }
+            ]
+        },
+        "4": {
+            "qbit_start": "output_6_0",
+            "qbit_end": "input_8_0",
+            "wires": [
+                {
+                    "id": 9,
+                    "x": 510,
+                    "y": 170,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 10,
+                    "x": 511,
+                    "y": 170,
+                    "direction": [
+                        160,
+                        0
+                    ]
+                }
+            ]
+        }
+    },
+    "qubits": {}
+}

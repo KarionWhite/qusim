@@ -66,7 +66,6 @@ class ActionHandler {
         this.updateOffsets();
     }
 
-
     server_save_project = (retObj) => {
         const data = {}
         data["task"] = "save_project";

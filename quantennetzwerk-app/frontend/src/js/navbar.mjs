@@ -13,7 +13,9 @@ class Navbar {
         }else{
             Navbar.instance = this;
         }
+        this.main_fieldset = document.getElementById("main-fieldset");
         this.main_container = document.getElementById("main-container");
+        this.main_waiter = document.getElementById("waiting");
         this.create_Project = document.getElementById("create_project");
         this.open_Project = document.getElementById("open_project");
         
@@ -26,12 +28,57 @@ class Navbar {
         document.getElementById("newproject").addEventListener("click", this.createProject);
         document.getElementById("openproject").addEventListener("click", this.openProject);
         document.getElementById("saveproject").addEventListener("click", this.saveProject);
+        document.getElementById("run_simulation").addEventListener("click", this.runSimulation);
 
         globalEvents.on("load-project", this.server_load_project);
         globalEvents.on("save-project", this.server_save_project);
         globalEvents.on("get-projects", this.server_get_projects);
         globalEvents.on("save-project-failed", this.save_project_failed);
     }
+
+    runSimulation = () => {
+        const data = {};
+        data["task"] = "simulate";
+        data["success"] = true;
+        data["data"] = actionHandler.getQCircuit();
+        data["data"]["project_header"] = project.save();
+        go_get_event(data, (data) => {
+            if(data.status === 'started'){
+                console.log("Simulation successfuly started");
+                this.main_fieldset.disabled = !this.main_fieldset.disabled;
+                this.main_waiter.removeAttribute("hidden");
+                project.setCalcId(data.calc_id);
+                window.alert(data.data);
+                this.pollSimulation();
+            }else{
+                console.error("Simulation failed");
+            }
+        });
+    };
+
+    pollSimulation = () => {
+        const data = {};
+        data["task"] = "pollSimulation";
+        data["success"] = true;
+        data["data"] = {};
+        data["data"]["calc_id"] = project.getCalcId();
+        go_get_event(data, (data) => {
+            if(data.status === 'running'){
+                console.log("Simulation poll successful");
+                if(data.data === "done"){
+                    console.log("Simulation done");
+                    window.alert("Simulation erfolgreich abgeschlossen");
+                    this.main_fieldset.disabled = !this.main_fieldset.disabled;
+                    this.main_waiter.setAttribute("hidden", true);
+                }else{
+                    console.log("Simulation still running");
+                    setTimeout(this.pollSimulation, 10000);
+                }
+            }else{
+                console.error("Simulation poll failed");
+            }
+        });
+    };
 
     server_load_project = (pproject) => {
         console.log("navbar:server_load_project -> load project");

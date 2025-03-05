@@ -11,7 +11,8 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}\\quSimPY\\main.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "subProcess": true,
         },
         {
             "name": "Wails: Debug Backend",

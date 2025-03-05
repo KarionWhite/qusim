@@ -1,17 +1,28 @@
 from fastapi import FastAPI
 from Logger import Logger
 from qusim import QuSimData
+from QSim import QSim
+import multiprocessing as mp
 import argparse
 import asyncio
 import uvicorn
+import signal
 import uuid
+import sys
 
-# Globale Variablen
 logger = None
-calc_stack = {}
 
+def start_calc(calc_stack, calc_id):
+    qsim = QSim(calc_stack,calc_id)
+    qsim.j2c()
 
 if __name__ == "__main__":
+    mp.freeze_support()
+    # Globale Variablen
+    manager = mp.Manager()
+    calc_stack = manager.dict()
+    server = None
+    
     parser = argparse.ArgumentParser(description='Start the QuSimPY API')
     parser.add_argument('--debug', action='store_true', help='Enable debug mode', default=False)
     parser.add_argument('-p', '--port', type=int, help='Port to run the API on', default=8000)
@@ -22,7 +33,6 @@ if __name__ == "__main__":
     logger = Logger(log_file="app.log", log_level=Logger.DEBUG if debug_api else Logger.INFO)
     logger.debug("QuSim Api startet on host: " + args.host + " and port: " + str(args.port))
     logger.debug("Debug mode is: " + str(debug_api))
-    
     
     
     app = FastAPI(
@@ -49,22 +59,68 @@ if __name__ == "__main__":
     async def health():
         return {"status": "Service is running"}
 
-
-    async def start_calculation():
-        pass
-
     @app.post("/calculate")
     async def calculate(request_data: dict):
         calc_id = str(uuid.uuid4())
-        calc_stack[calc_id] = request_data
-        # start_calculation()
+        calc_stack[calc_id] = {"status": "running"}
+        bbb = {}
+        bbb["data"] = request_data
+        bbb["result"] = None
+        bbb["error"] = None
+        calc_stack[calc_id] = bbb
+        
+        mp.Process(target=start_calc, args=(calc_stack[calc_id], calc_id)).start() 
+        
         return {"status": "started", "calc_id": calc_id}
+
+    @app.post("/poll")
+    async def poll(request_data: dict):
+        calc_id = request_data["calc_id"]
+        if calc_id in calc_stack:
+            return {"status": "running"}
+        else:
+            return {"status": "error", "message": "Calculation not found"}
+
+    @app.post("/get")
+    async def get(request_data: dict):
+        calc_id = request_data["calc_id"]
+        if calc_id in calc_stack:
+            return {"status": "running"}
+        else:
+            return {"status": "error", "message": "Calculation not found"}
+
+    @app.post("/pyExport")
+    async def pyExport(request_data: dict):
+        #TODO: Implement a way to export Calq as a Python Module
+        pass
 
     @app.get("/result")
     async def result():
         return {"status": "done", "result": "42"}
+
+    async def shutdown_server():
+        logger.info("Shutting down server")
+        await asyncio.sleep(5)
+        if server:
+            server.should_exit = True
+            await server.shutdown()
+        logger.info("Server shutdown complete")
+        
+
+    @app.get("/shutdown")
+    async def shutdown():
+        logger.info("Shutting down")
+        asyncio.create_task(shutdown_server())
+        return {"status": "shutdown"}
+
+    def handle_sigterm(*args):
+        logger.info("Received SIGTERM")
+        asyncio.create_task(shutdown_server())
+    signal.signal(signal.SIGTERM, handle_sigterm)
+    signal.signal(signal.SIGINT, handle_sigterm)
     
-    import sys
     with open('uvicorn.log', 'w') as f:
         sys.stdout = f
-        uvicorn.run(app, host=args.host, port=args.port) # Korrigiert: uvicorn.run nach der Initialisierung der app Instanz aufrufen.
+        uvi_config = uvicorn.Config(app, host=args.host, port=args.port, workers=1) # Korrigiert: uvicorn.run nach der Initialisierung der app Instanz aufrufen.
+        server = uvicorn.Server(uvi_config)
+        asyncio.run(server.serve())

@@ -203,14 +203,14 @@ class QWireSession {
             if(session.qbit_end === null || session.qbit_start === null){
                 continue;
             }
-            save[session.id] = {
+            save[sessionID] = {
                 qbit_start: session.qbit_start,
                 qbit_end: session.qbit_end,
                 wires: []
             };
             for (const wire of session.wires) {
                 if(wire.shadow)continue;
-                save[session.id].wires.push(wire.forSave());
+                save[sessionID].wires.push(wire.forSave());
             }
         }
         return save;
@@ -225,7 +225,7 @@ class QWireSession {
                 wires: []
             };
             for (const wire of session.wires) {
-                this.sessions[sessionID].wires.push(new QWire(wire.x, wire.y, wire.direction));
+                this.sessions[sessionID].wires.push(new QWire(wire.x, wire.y, wire.direction,false,true,wire.id));
             }
         }
         this.placeWires();

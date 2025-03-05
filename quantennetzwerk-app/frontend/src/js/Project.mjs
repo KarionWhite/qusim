@@ -15,6 +15,7 @@ class Project {
         this.description = "";
         this.created_at = new Date();
         this.updated_at = new Date();
+        this.calc_id = null;
     }
 
     //!Go Funktion!!!!
@@ -44,6 +45,13 @@ class Project {
         this.updateWindowName();
     }
 
+    setCalcId(id){
+        this.calc_id = id;
+    }
+
+    getCalcId(){
+        return this.calc_id;
+    }
 }
 
 const project = new Project();
