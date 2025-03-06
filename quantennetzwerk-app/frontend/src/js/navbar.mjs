@@ -2,6 +2,7 @@ import { go_post_event, go_get_event} from './go_com.mjs';
 import globalEvents from './EventEmitter.mjs';
 import actionHandler from './ActionHandler.mjs';
 import project from './Project.mjs';
+import infoHandler from './infoHandler.mjs';
 
 class Navbar {
 
@@ -48,7 +49,7 @@ class Navbar {
                 this.main_fieldset.disabled = !this.main_fieldset.disabled;
                 this.main_waiter.removeAttribute("hidden");
                 project.setCalcId(data.calc_id);
-                window.alert(data.data);
+                window.alert(data.message);
                 this.pollSimulation();
             }else{
                 console.error("Simulation failed");
@@ -74,8 +75,37 @@ class Navbar {
                     console.log("Simulation still running");
                     setTimeout(this.pollSimulation, 10000);
                 }
-            }else{
+            }else if(data.status === 'done'){
+                console.log("Simulation done");
+                window.alert("Simulation erfolgreich abgeschlossen");
+                this.main_fieldset.disabled = !this.main_fieldset.disabled;
+                this.main_waiter.setAttribute("hidden", true);
+                this.getCalculationResults();
+            }else if(data.status === 'error'){
                 console.error("Simulation poll failed");
+                window.alert("Simulation fehlgeschlagen" + data.message);
+                this.main_fieldset.disabled = !this.main_fieldset.disabled;
+                this.main_waiter.setAttribute("hidden", true);
+            }
+            else{
+                console.error("Simulation poll failed");
+            }
+        });
+    };
+
+    getCalculationResults = () => {
+        const data = {};
+        data["task"] = "get_simulation";
+        data["success"] = true;
+        data["data"] = {};
+        data["data"]["calc_id"] = project.getCalcId();
+        go_get_event(data, (data) => {
+            if(data.success){
+                console.log("Simulation results successful");
+                console.log(data);
+                infoHandler.setData(data);
+            }else{
+                console.error("Simulation results failed");
             }
         });
     };

@@ -92,6 +92,8 @@ func (a *App) GetRequest(data PostJSONData) (string, error) {
 		jsonResponse, err = taskhandler.Simulate(jsonData.Data)
 	case "pollSimulation":
 		jsonResponse, err = taskhandler.PollSimulation(jsonData.Data)
+	case "get_simulation":
+		jsonResponse, err = taskhandler.GetSimulation(jsonData.Data)
 	default:
 		log.Error("app.go::GetRequest-> Task not found")
 	}

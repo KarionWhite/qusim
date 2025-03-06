@@ -1,0 +1,438 @@
+{
+    "project_header": {
+        "name": "Chaos",
+        "created_at": "2025-03-06T12:39:18.5060181+01:00",
+        "updated_at": "2025-03-06T12:39:18.5060181+01:00",
+        "description": "Wir wollen mal was größeres Testen."
+    },
+    "blocks": {
+        "1": {
+            "kind": "qinput",
+            "x": 130,
+            "y": 130,
+            "inputWireIds": [],
+            "outputWireIds": [
+                1
+            ]
+        },
+        "10": {
+            "kind": "cnot",
+            "x": 810,
+            "y": 130,
+            "inputWireIds": [
+                26,
+                24
+            ],
+            "outputWireIds": [
+                27,
+                29
+            ]
+        },
+        "12": {
+            "kind": "measure",
+            "x": 1030,
+            "y": 130,
+            "inputWireIds": [
+                28
+            ],
+            "outputWireIds": []
+        },
+        "13": {
+            "kind": "measure",
+            "x": 1030,
+            "y": 270,
+            "inputWireIds": [
+                18
+            ],
+            "outputWireIds": []
+        },
+        "14": {
+            "kind": "measure",
+            "x": 1030,
+            "y": 390,
+            "inputWireIds": [
+                32
+            ],
+            "outputWireIds": []
+        },
+        "16": {
+            "kind": "pauli_z",
+            "x": 270,
+            "y": 370,
+            "inputWireIds": [
+                20
+            ],
+            "outputWireIds": [
+                21
+            ]
+        },
+        "2": {
+            "kind": "qinput",
+            "x": 130,
+            "y": 250,
+            "inputWireIds": [],
+            "outputWireIds": [
+                7
+            ]
+        },
+        "3": {
+            "kind": "qinput",
+            "x": 130,
+            "y": 370,
+            "inputWireIds": [],
+            "outputWireIds": [
+                19
+            ]
+        },
+        "5": {
+            "kind": "pauli_x",
+            "x": 270,
+            "y": 130,
+            "inputWireIds": [
+                2
+            ],
+            "outputWireIds": [
+                3
+            ]
+        },
+        "7": {
+            "kind": "hadamard",
+            "x": 390,
+            "y": 130,
+            "inputWireIds": [
+                4
+            ],
+            "outputWireIds": [
+                5
+            ]
+        },
+        "9": {
+            "kind": "cnot",
+            "x": 590,
+            "y": 130,
+            "inputWireIds": [
+                6,
+                10
+            ],
+            "outputWireIds": [
+                25,
+                15
+            ]
+        }
+    },
+    "wire_session": {
+        "1": {
+            "qbit_start": "output_1_0",
+            "qbit_end": "input_5_0",
+            "wires": [
+                {
+                    "id": 1,
+                    "x": 190,
+                    "y": 170,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 2,
+                    "x": 191,
+                    "y": 170,
+                    "direction": [
+                        80,
+                        0
+                    ]
+                }
+            ]
+        },
+        "10": {
+            "qbit_start": "output_10_0",
+            "qbit_end": "input_12_0",
+            "wires": [
+                {
+                    "id": 27,
+                    "x": 870,
+                    "y": 170,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 28,
+                    "x": 871,
+                    "y": 170,
+                    "direction": [
+                        160,
+                        0
+                    ]
+                }
+            ]
+        },
+        "11": {
+            "qbit_start": "output_10_1",
+            "qbit_end": "input_14_0",
+            "wires": [
+                {
+                    "id": 29,
+                    "x": 870,
+                    "y": 190,
+                    "direction": [
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "id": 30,
+                    "x": 870,
+                    "y": 190,
+                    "direction": [
+                        60,
+                        0
+                    ]
+                },
+                {
+                    "id": 31,
+                    "x": 930,
+                    "y": 190,
+                    "direction": [
+                        0,
+                        240
+                    ]
+                },
+                {
+                    "id": 32,
+                    "x": 930,
+                    "y": 430,
+                    "direction": [
+                        100,
+                        0
+                    ]
+                }
+            ]
+        },
+        "2": {
+            "qbit_start": "output_5_0",
+            "qbit_end": "input_7_0",
+            "wires": [
+                {
+                    "id": 3,
+                    "x": 330,
+                    "y": 170,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 4,
+                    "x": 331,
+                    "y": 170,
+                    "direction": [
+                        60,
+                        0
+                    ]
+                }
+            ]
+        },
+        "3": {
+            "qbit_start": "output_7_0",
+            "qbit_end": "input_9_0",
+            "wires": [
+                {
+                    "id": 5,
+                    "x": 450,
+                    "y": 170,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 6,
+                    "x": 451,
+                    "y": 170,
+                    "direction": [
+                        140,
+                        0
+                    ]
+                }
+            ]
+        },
+        "4": {
+            "qbit_start": "output_2_0",
+            "qbit_end": "input_9_1",
+            "wires": [
+                {
+                    "id": 7,
+                    "x": 190,
+                    "y": 290,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 8,
+                    "x": 191,
+                    "y": 290,
+                    "direction": [
+                        360,
+                        0
+                    ]
+                },
+                {
+                    "id": 9,
+                    "x": 551,
+                    "y": 290,
+                    "direction": [
+                        0,
+                        -100
+                    ]
+                },
+                {
+                    "id": 10,
+                    "x": 551,
+                    "y": 190,
+                    "direction": [
+                        40,
+                        0
+                    ]
+                }
+            ]
+        },
+        "6": {
+            "qbit_start": "output_9_1",
+            "qbit_end": "input_13_0",
+            "wires": [
+                {
+                    "id": 15,
+                    "x": 650,
+                    "y": 190,
+                    "direction": [
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "id": 16,
+                    "x": 650,
+                    "y": 190,
+                    "direction": [
+                        80,
+                        0
+                    ]
+                },
+                {
+                    "id": 17,
+                    "x": 730,
+                    "y": 190,
+                    "direction": [
+                        0,
+                        120
+                    ]
+                },
+                {
+                    "id": 18,
+                    "x": 730,
+                    "y": 310,
+                    "direction": [
+                        300,
+                        0
+                    ]
+                }
+            ]
+        },
+        "7": {
+            "qbit_start": "output_3_0",
+            "qbit_end": "input_16_0",
+            "wires": [
+                {
+                    "id": 19,
+                    "x": 190,
+                    "y": 410,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 20,
+                    "x": 191,
+                    "y": 410,
+                    "direction": [
+                        80,
+                        0
+                    ]
+                }
+            ]
+        },
+        "8": {
+            "qbit_start": "output_16_0",
+            "qbit_end": "input_10_1",
+            "wires": [
+                {
+                    "id": 21,
+                    "x": 330,
+                    "y": 410,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 22,
+                    "x": 331,
+                    "y": 410,
+                    "direction": [
+                        440,
+                        0
+                    ]
+                },
+                {
+                    "id": 23,
+                    "x": 771,
+                    "y": 410,
+                    "direction": [
+                        0,
+                        -220
+                    ]
+                },
+                {
+                    "id": 24,
+                    "x": 771,
+                    "y": 190,
+                    "direction": [
+                        40,
+                        0
+                    ]
+                }
+            ]
+        },
+        "9": {
+            "qbit_start": "output_9_0",
+            "qbit_end": "input_10_0",
+            "wires": [
+                {
+                    "id": 25,
+                    "x": 650,
+                    "y": 170,
+                    "direction": [
+                        1,
+                        0
+                    ]
+                },
+                {
+                    "id": 26,
+                    "x": 651,
+                    "y": 170,
+                    "direction": [
+                        160,
+                        0
+                    ]
+                }
+            ]
+        }
+    },
+    "qubits": {}
+}

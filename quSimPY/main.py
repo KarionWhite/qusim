@@ -2,25 +2,34 @@ from fastapi import FastAPI
 from Logger import Logger
 from qusim import QuSimData
 from QSim import QSim
+from queue import Empty
 import multiprocessing as mp
 import argparse
 import asyncio
 import uvicorn
 import signal
+import json
 import uuid
 import sys
 
 logger = None
 
-def start_calc(calc_stack, calc_id):
+def start_calc(calc_stack:dict, calc_id:str, calc_queue:mp.Queue):
     qsim = QSim(calc_stack,calc_id)
     qsim.j2c()
+    calc_stack = qsim.result()
+    calc_stack["success"] = True
+    calc_queue.put({calc_id: calc_stack})
+    print("Calculation finished")
+    return
+    
 
 if __name__ == "__main__":
     mp.freeze_support()
     # Globale Variablen
-    manager = mp.Manager()
-    calc_stack = manager.dict()
+    calc_queue = mp.Queue()
+    calc_Processes:dict[str,mp.context.Process] = {}
+    calc_results = {}
     server = None
     
     parser = argparse.ArgumentParser(description='Start the QuSimPY API')
@@ -48,8 +57,10 @@ if __name__ == "__main__":
     Wir haben 3 Endpunkte:
     1. /health: GET Methode
     2. /calculate: POST Methode
-    3. /result: GET Methode
-
+    3. /poll: POST Methode
+    4. /get: GET Methode
+    5. /pyExport: POST Methode
+    6. /shutdown: GET Methode
     health: Gibt eine Nachricht zurück, dass der Service läuft.
     calculate: Nimmt json Daten entgegen und gibt eine Nachricht zurück, dass die Berechnung gestartet wurde. (statet die Berechnung)
     result: Gibt den Status der Berechnung zurück. Wenn result leer ist, ist die Berechnung noch nicht abgeschlossen. Dies ist notwendig, für Polling.
@@ -62,41 +73,55 @@ if __name__ == "__main__":
     @app.post("/calculate")
     async def calculate(request_data: dict):
         calc_id = str(uuid.uuid4())
-        calc_stack[calc_id] = {"status": "running"}
-        bbb = {}
-        bbb["data"] = request_data
-        bbb["result"] = None
-        bbb["error"] = None
-        calc_stack[calc_id] = bbb
+        calc_stack = {}
+        calc_stack["status"] = "running"
+        calc_stack["data"] = request_data
+        calc_stack["result"] = None
+        calc_stack["error"] = None
         
-        mp.Process(target=start_calc, args=(calc_stack[calc_id], calc_id)).start() 
-        
-        return {"status": "started", "calc_id": calc_id}
+        calc_Processes[calc_id] = mp.Process(target=start_calc, name="QSIM_" + calc_id,args=(calc_stack, calc_id, calc_queue))
+        calc_Processes[calc_id].start()
+        return {"status": "started", "calc_id": calc_id, "message": "Calculation started"}
 
     @app.post("/poll")
     async def poll(request_data: dict):
         calc_id = request_data["calc_id"]
-        if calc_id in calc_stack:
+        if calc_id not in calc_Processes and calc_id not in calc_results:
+            return {"status": "error", "message": "Calculation could not be found"}
+        alive = calc_Processes[calc_id].is_alive()
+        if alive:
             return {"status": "running"}
         else:
-            return {"status": "error", "message": "Calculation not found"}
+            return {"status": "done"}
 
     @app.post("/get")
     async def get(request_data: dict):
         calc_id = request_data["calc_id"]
-        if calc_id in calc_stack:
+        alive = calc_Processes[calc_id].is_alive()
+        if alive:
             return {"status": "running"}
         else:
-            return {"status": "error", "message": "Calculation not found"}
+            calc_Processes[calc_id].join()
+            if calc_id in calc_results:
+                return calc_results[calc_id]
+            try:
+                possible = calc_queue.get(block=False)
+                while calc_id not in possible:
+                    calc_results.update(possible)
+                    possible = calc_queue.get(block=False)
+                calc_results.update(possible)
+            except Empty:
+                return {"status": "error", "message": "Calculation is not in the queue"}
+            if calc_id in calc_results:
+                return calc_results[calc_id]
+            else:
+                return {"status": "error", "message": "Calculation could not be found"}
 
     @app.post("/pyExport")
     async def pyExport(request_data: dict):
         #TODO: Implement a way to export Calq as a Python Module
         pass
 
-    @app.get("/result")
-    async def result():
-        return {"status": "done", "result": "42"}
 
     async def shutdown_server():
         logger.info("Shutting down server")

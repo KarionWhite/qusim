@@ -47,10 +47,14 @@ class QBlock {
         const has_startDrag = globalEvents.hasListeners("startDrag") && !shadow;
         const has_placeBlock = globalEvents.hasListeners("placeBlock") && shadow;
         const has_startWire = globalEvents.hasListeners("startWire") && !shadow;
+        const has_info_hover = globalEvents.hasListeners("infoHover") && !shadow;
+        const has_info_unhover = globalEvents.hasListeners("infoUnhover") && !shadow;
         //Warnungen, wenn keine Listener vorhanden sind, wenn sie benötigt werden
         if (!has_startDrag && !shadow) console.warn("No listener for 'startDrag' event.");
         if (!has_placeBlock && shadow) console.warn("No listener for 'placeBlock' event.");
         if (!has_startWire && !shadow) console.warn("No listener for 'startWire' event.");
+        if (!has_info_hover && !shadow) console.warn("No listener for 'infoHover' event.");
+        if (!has_info_unhover && !shadow) console.warn("No listener for 'infoUnhover' event.");
 
         // Rechteck
         const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -71,6 +75,16 @@ class QBlock {
         if (has_placeBlock) {
             rect.addEventListener("mousedown", (event) => {
                 globalEvents.emit("placeBlock", event, id);
+            });
+        }
+        if (has_info_hover) {
+            rect.addEventListener("mouseover", (event) => {
+                globalEvents.emit("infoHover", event, id);
+            });
+        }
+        if (has_info_unhover) {
+            rect.addEventListener("mouseleave", (event) => {
+                globalEvents.emit("infoUnhover", event, id);
             });
         }
         elements.push(rect);
@@ -95,6 +109,16 @@ class QBlock {
         if (has_placeBlock) {
             text.addEventListener("mousedown", (event) => {
                 globalEvents.emit("placeBlock", event, id);
+            });
+        }
+        if (has_info_hover) {
+            text.addEventListener("mouseover", (event) => {
+                globalEvents.emit("infoHover", event, id);
+            });
+        }
+        if (has_info_unhover) {
+            text.addEventListener("mouseleave", (event) => {
+                globalEvents.emit("infoUnhover", event, id);
             });
         }
         text.style.zIndex = 4;
