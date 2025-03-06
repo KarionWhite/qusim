@@ -55,6 +55,11 @@ func (a *App) PostRequest(data PostJSONData) (string, error) {
 		response.Success = success
 		response.Task = "create_project"
 		response.Data = awnser
+	case "delete_project":
+		var success, awnser = taskhandler.DeleteProject(jsonData.Data)
+		response.Success = success
+		response.Task = "delete_project"
+		response.Data = awnser
 	case "error":
 		response.Success = false
 		response.Task = "unmarshalling_error"

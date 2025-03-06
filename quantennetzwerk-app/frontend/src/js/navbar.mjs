@@ -195,14 +195,17 @@ class Navbar {
         const listHead_ProjectCreationDate = document.createElement("th");
         const listHead_ProjectLastChange = document.createElement("th");
         const listHead_ProjectDescription = document.createElement("th");
+        const listHead_ProjectDelete = document.createElement("th");
         listHead_ProjectName.innerText = "Project Name";
         listHead_ProjectCreationDate.innerText = "Creation Date";
         listHead_ProjectLastChange.innerText = "Last Change";
         listHead_ProjectDescription.innerText = "Description";
+        listHead_ProjectDelete.innerText = "Delete";
         listHead.appendChild(listHead_ProjectName);
         listHead.appendChild(listHead_ProjectCreationDate);
         listHead.appendChild(listHead_ProjectLastChange);
         listHead.appendChild(listHead_ProjectDescription);
+        listHead.appendChild(listHead_ProjectDelete);
         listThead.appendChild(listHead);
         listContainer.appendChild(listThead);
         const listTbody = document.createElement("tbody");
@@ -210,6 +213,7 @@ class Navbar {
         listTbody.id = "open_project_list_tbody";
         for(const pproject of data){
             const listRow = document.createElement("tr");
+            listRow.id = pproject.name + "_row";
             listRow.addEventListener("click", () => {
                 this.loadProject(pproject.name);
             });
@@ -217,18 +221,59 @@ class Navbar {
             const listRow_ProjectCreationDate = document.createElement("td");
             const listRow_ProjectLastChange = document.createElement("td");
             const listRow_ProjectDescription = document.createElement("td");
+            const listRow_ProjectDelete = document.createElement("td");
             listRow_ProjectName.innerText = pproject.name;
             listRow_ProjectCreationDate.innerText = this.__beautifyDate(pproject.created_at);
             listRow_ProjectLastChange.innerText = this.__beautifyDate(pproject.updated_at);
             listRow_ProjectDescription.innerText = pproject.description;
+
+            const deleteButton = document.createElement("button");
+            deleteButton.classList.add("btn", "btn-danger", "btn-sm", "delete-button");
+            deleteButton.type = "button";
+            deleteButton.id = pproject.name + "_delete";
+
+            const deleteIcon = document.createElement("img");
+            deleteIcon.src = "/Bootstrap/bootstrap-icons/trash3.svg"
+            deleteIcon.alt = "delete Project";
+            deleteButton.appendChild(deleteIcon);
+            deleteButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                this.deleteProject(pproject.name);
+            });
+            listRow_ProjectDelete.appendChild(deleteButton);
+
             listRow.appendChild(listRow_ProjectName);
             listRow.appendChild(listRow_ProjectCreationDate);
             listRow.appendChild(listRow_ProjectLastChange);
             listRow.appendChild(listRow_ProjectDescription);
+            listRow.appendChild(listRow_ProjectDelete);
             listTbody.appendChild(listRow);
         }
         listContainer.appendChild(listTbody);
         projectList.prepend(listContainer);
+    };
+
+    deleteProject = (project_name) => {
+        if(!confirm(`Wollen Sie das Projekt ${project_name} wirklich löschen?`)){
+            return;
+        }
+        const data = {};
+        data["task"] = "delete_project";
+        data["success"] = true;
+        data["data"] = {};
+        data["data"]["project_name"] = project_name;
+        go_post_event(data, (data) => {
+            if(data.success){
+                console.log("Project deleted");
+                window.alert(data.data);
+                const projectRow = document.getElementById(project_name + "_row");
+                if(projectRow !== null){
+                    projectRow.remove();
+                }
+            }else{
+                console.error("Project deletion failed");
+            }
+        });
     };
 
     __beautifyDate = (date) => {

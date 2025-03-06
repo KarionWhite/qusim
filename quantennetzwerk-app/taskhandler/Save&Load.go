@@ -302,6 +302,24 @@ func Select_Project(projectName string) error {
 	return nil
 }
 
+func DeleteProject(data json.RawMessage) (bool, string) {
+	var toDelete LoadProjectJ
+	err := json.Unmarshal(data, &toDelete)
+	if err != nil {
+		log.Error("Save&Load->DeleteProject(): Fehler beim Löschen des Projekts: " + err.Error())
+		return false, "Fehler beim Löschen des Projekts: " + err.Error()
+	}
+	if !strings.HasSuffix(toDelete.Name, ".qusim") {
+		toDelete.Name = toDelete.Name + ".qusim"
+	}
+	err1 := os.Remove(filepath.Join(GetProjectsPath(), toDelete.Name))
+	if err1 != nil {
+		log.Error("Save&Load->DeleteProject(): Fehler beim Löschen des Projekts: " + err1.Error())
+		return false, "Fehler beim Löschen des Projekts: " + err1.Error()
+	}
+	return true, "Projekt " + toDelete.Name + " wurde erfolgreich gelöscht."
+}
+
 /*
 Gibt den aktuellen Projektpfad zurück.
 @return string - Pfad zum aktuellen Projekt.

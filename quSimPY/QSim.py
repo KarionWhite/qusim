@@ -187,11 +187,11 @@ class QSim:
         rets = []
         outputs = block["outputWireIds"]
         for output in outputs:
-            if output == 0:
+            if output == 0 or output == None:
                 continue
             wireSession = self.findWireSession(output)
             if wireSession is None:
-                self.calc_stack["error"] = "WireSession not found on Block: " + block["id"]
+                self.calc_stack["error"] = "WireSession not found on Block: " + str(block["id"])
                 return []  # Fehlerfall: Gib leere Liste zurück
 
             qbit_start: str = self.calc_stack["data"]["wire_session"][wireSession]["qbit_start"]
