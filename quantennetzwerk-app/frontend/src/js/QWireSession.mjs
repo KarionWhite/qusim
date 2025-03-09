@@ -231,6 +231,15 @@ class QWireSession {
         this.placeWires();
     }
 
+    restoreSession(session){
+        //Check for ID collision -> Should not happen but better safe than sorry
+        if(this.sessions[session.id]){
+            return;
+        }
+        this.sessions[session.id] = session;
+        this.placeWires();
+    }
+
 }
 
 const qWireSession = new QWireSession();

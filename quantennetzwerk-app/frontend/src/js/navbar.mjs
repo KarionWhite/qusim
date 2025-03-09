@@ -3,6 +3,7 @@ import globalEvents from './EventEmitter.mjs';
 import actionHandler from './ActionHandler.mjs';
 import project from './Project.mjs';
 import infoHandler from './infoHandler.mjs';
+import actionWatcher from './ActionWatcher.mjs';
 
 class Navbar {
 
@@ -23,6 +24,9 @@ class Navbar {
         this.create_Project.setAttribute("hidden", true);
         this.open_Project.setAttribute("hidden", true);
 
+        this.edit_undo = document.getElementById("edit_undo");
+        this.edit_redo = document.getElementById("edit_redo");
+
         document.getElementById("return_from_create").addEventListener("click", this.return_to_main);
         document.getElementById("return_from_open").addEventListener("click", this.return_to_main);
 
@@ -31,10 +35,24 @@ class Navbar {
         document.getElementById("saveproject").addEventListener("click", this.saveProject);
         document.getElementById("run_simulation").addEventListener("click", this.runSimulation);
 
+        this.edit_undo.addEventListener("click", this.undoClicked);
+        this.edit_redo.addEventListener("click", this.redoClicked);
+        this.edit_undo.disabled = true;
+        this.edit_redo.disabled = true;
+
+        //Registriere Navbar Events
         globalEvents.on("load-project", this.server_load_project);
         globalEvents.on("save-project", this.server_save_project);
         globalEvents.on("get-projects", this.server_get_projects);
         globalEvents.on("save-project-failed", this.save_project_failed);
+        document.addEventListener('keydown', this.keydown);
+
+        //Registriere ActionWatcher Events
+        globalEvents.on(actionWatcher.EMMITED_ACTIONS.ActionRegistered, this.actionRegistered);
+        globalEvents.on(actionWatcher.EMMITED_ACTIONS.UndoAction, this.undoAction);
+        globalEvents.on(actionWatcher.EMMITED_ACTIONS.RedoAction, this.redoAction);
+
+
     }
 
     runSimulation = () => {
@@ -313,6 +331,47 @@ class Navbar {
         this.create_Project.setAttribute("hidden", true);
         this.open_Project.setAttribute("hidden", true);
         this.main_container.removeAttribute("hidden");
+    };
+
+    undoClicked = () => {
+        globalEvents.emit(actionWatcher.REGISTERED_ACTIONS.GetUndo);
+    };
+
+    redoClicked = () => {
+        globalEvents.emit(actionWatcher.REGISTERED_ACTIONS.GetRedo);
+    };
+
+    keydown = (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+            globalEvents.emit(actionWatcher.REGISTERED_ACTIONS.GetUndo);
+        }
+        if ((event.ctrlKey || event.metaKey) && event.key === 'y') {
+            globalEvents.emit(actionWatcher.REGISTERED_ACTIONS.GetRedo);
+        }
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'Z') {
+            globalEvents.emit(actionWatcher.REGISTERED_ACTIONS.GetRedo);
+        }
+    };
+
+    actionRegistered = (action, data) => {
+        if(actionWatcher.canUndo()){
+            this.edit_undo.disabled = false;
+        }else{
+            this.edit_undo.disabled = true;
+        }
+        if(actionWatcher.canRedo()){
+            this.edit_redo.disabled = false;
+        }else{
+            this.edit_redo.disabled = true;
+        }
+    };
+
+    undoAction = (action,data) => {
+        this.actionRegistered(action,data);
+    };
+
+    redoAction = (action,data) => {
+        this.actionRegistered(action,data);
     };
 
     static getInstance = () => { return Navbar.instance; }
