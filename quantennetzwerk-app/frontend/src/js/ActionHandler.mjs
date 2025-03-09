@@ -198,8 +198,9 @@ class ActionHandler {
             this.startDragY = this.draggedQBlock.y;
 
             this.draggedQBlock.highlight();
-            this.mouseOffsetX = event.clientX - this.draggedQBlock.x;
-            this.mouseOffsetY = event.clientY - this.draggedQBlock.y;
+            var [scrollX, scrollY] = circuitArea.getScrollPosition();
+            this.mouseOffsetX = event.clientX - this.draggedQBlock.x + scrollX;
+            this.mouseOffsetY = event.clientY - this.draggedQBlock.y + scrollY;
             // Korrigierte Event-Listener: mousemove und *mouseup*
             document.addEventListener("mousemove", this.boundDragMove);
             document.addEventListener("keydown", this.dragKeydown.bind(this));
@@ -263,11 +264,12 @@ class ActionHandler {
             console.error(`Block with id ${blockIdnum} not found with ${portId}`);
             return;
         }
+        const [scrollX, scrollY] = circuitArea.getScrollPosition();
         let [x, y] = block.getQBlockPortPosition(portId, this.circuit_area.scrollLeft, this.circuit_area.scrollTop);
-        [x, y] = circuitArea.getNextGridPoint(x - ActionHandler.circuitAreaOffsetX, y - ActionHandler.circuitAreaOffsetY);
+        [x, y] = circuitArea.getNextGridPoint(x - ActionHandler.circuitAreaOffsetX - scrollX, y - ActionHandler.circuitAreaOffsetY - scrollY);
         console.log(`Start Wire at Port: ${portId} with event: ${event.type} at x: ${x} and y: ${y}`)
-        this.mouseOffsetX = event.clientX - ActionHandler.circuitAreaOffsetX;
-        this.mouseOffsetY = event.clientY - ActionHandler.circuitAreaOffsetY;
+        this.mouseOffsetX = event.clientX - ActionHandler.circuitAreaOffsetX + scrollX;
+        this.mouseOffsetY = event.clientY - ActionHandler.circuitAreaOffsetY + scrollY;
         if (!this.wiring) {
             this.wiring = true;
             qWireSession.startSession(portId);
@@ -318,13 +320,14 @@ class ActionHandler {
     changeWireDirection = (event) => {
         if (event.type === "mouseup" && event.button !== 0) return; // Nur linke Maustaste
         let newdirection = [0, 0];
+        const [scrollX, scrollY] = circuitArea.getScrollPosition();
         if (this.wiring_horizontal) {
             this.wiring_horizontal = false;
-            this.mouseOffsetX = event.clientX - ActionHandler.circuitAreaOffsetX + 10; //keine Ahnung warum das +10 sein muss
+            this.mouseOffsetX = event.clientX - ActionHandler.circuitAreaOffsetX + 10 + scrollX; //keine Ahnung warum das +10 sein muss
             newdirection = [0, 1];
         } else {
             this.wiring_horizontal = true;
-            this.mouseOffsetY = event.clientY - ActionHandler.circuitAreaOffsetY;
+            this.mouseOffsetY = event.clientY - ActionHandler.circuitAreaOffsetY + scrollY;
             newdirection = [1, 0];
         }
         const x = qWireSession.currentWire.x + qWireSession.currentWire.direction[0];

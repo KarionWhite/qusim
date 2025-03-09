@@ -440,3 +440,11 @@
 {"time":"2025-03-06T23:18:03.2009451+01:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
 {"time":"2025-03-06T23:18:03.5207114+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"131","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
 {"time":"2025-03-06T23:18:03.5212369+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"139","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\Qusim\\qusim\\quSimPy\\dist\\main.exe"}
+{"time":"2025-03-09T15:48:29.7960874+01:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-09T15:48:43.751797+01:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-09T15:49:05.9762437+01:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-09T15:49:06.4478325+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"131","message":"app.go::startup-> Application is starting with executable path: G:\\Meine Ablage\\Uni\\QuantenNetze\\qusim-1\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app-dev.exe"}
+{"time":"2025-03-09T15:49:06.4499853+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"139","message":"app.go::startup-> Python path: G:\\Meine Ablage\\Uni\\QuantenNetze\\qusim-1\\quSimPy\\dist\\main.exe"}
+{"time":"2025-03-09T15:50:54.6541944+01:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-09T15:51:08.7836976+01:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-09T15:51:22.9980643+01:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}

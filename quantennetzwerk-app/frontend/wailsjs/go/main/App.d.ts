@@ -3,7 +3,7 @@
 import {main} from '../models';
 import {exec} from '../models';
 
-export function GetRequest(arg1:main.GetJsonData):Promise<string>;
+export function GetRequest(arg1:main.PostJSONData):Promise<string>;
 
 export function PostRequest(arg1:main.PostJSONData):Promise<string>;
 

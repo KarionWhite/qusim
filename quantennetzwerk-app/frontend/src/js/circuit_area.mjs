@@ -102,6 +102,10 @@ class CircuitArea {
 
         return [gridX, gridY];
     }
+
+    getScrollPosition() {
+        return [this.circuitAreaElement.scrollLeft, this.circuitAreaElement.scrollTop];
+    }
 }
 
 const circuitArea = new CircuitArea();

@@ -29,7 +29,7 @@ body {
 
 #circuit-area {
   width: 104%;  /* Beispielwert */
-  height:100%; /* Beispielwert */
+  height:104%; /* Beispielwert */
   overflow: scroll;
   position: relative;
 }
