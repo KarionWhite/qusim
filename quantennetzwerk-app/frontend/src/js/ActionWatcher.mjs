@@ -43,12 +43,12 @@ class ActionWatcher {
      * Aber auch das Eingrauen der Redo und Undo Funktionen können so verkraut werden. 
      */
     actionTaken = (action, data) => {
-        if (this.currentAction < this.actions.length) {
-            this.actions.splice(this.currentAction, this.actions.length - this.currentAction);
+        if (this.currentAction < this.actions.length - 1) {    
+            this.actions.splice(this.currentAction + 1, this.actions.length - (this.currentAction + 1));
         }
         this.actions.push({ action: action, data: data });
         this.currentAction++;
-        this.maxActions = this.actions.length;
+        this.maxActions = this.currentAction;
         globalEvents.emit(this.EMMITED_ACTIONS.ActionRegistered, this.actions[this.currentAction]);
     }
 

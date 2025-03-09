@@ -309,7 +309,7 @@ class Navbar {
 
     saveProject = () => { // Save Project to local storage (frontend only)
         if(project.name === ""){
-            window.alert("Bitte erstellen Sie ein Projekt bevor Sie es speichern");
+            window.alert("Bitte erstellen Sie ein Projekt zum speichern");
             this.createProject();
             return;
         }
@@ -319,7 +319,7 @@ class Navbar {
     save_project_failed = (data) => {
         if((data.data === "create_project")){
             //Es wurde zwar versucht ein Projekt zu speichern, aber keines war bekannt
-            window.alert("Bitte erstellen Sie ein Projekt bevor Sie es speichern");
+            window.alert("Bitte erstellen Sie ein Projekt zum speichern");
             //Wir wechseln zur create Projekt Seite
             this.createProject();
         }
@@ -351,9 +351,12 @@ class Navbar {
         if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'Z') {
             globalEvents.emit(actionWatcher.REGISTERED_ACTIONS.GetRedo);
         }
+        if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+            this.saveProject();
+        }
     };
 
-    actionRegistered = (action, data) => {
+    actionRegistered = (action) => {
         if(actionWatcher.canUndo()){
             this.edit_undo.disabled = false;
         }else{
@@ -366,12 +369,12 @@ class Navbar {
         }
     };
 
-    undoAction = (action,data) => {
-        this.actionRegistered(action,data);
+    undoAction = (action) => {
+        this.actionRegistered(action);
     };
 
-    redoAction = (action,data) => {
-        this.actionRegistered(action,data);
+    redoAction = (action) => {
+        this.actionRegistered(action);
     };
 
     static getInstance = () => { return Navbar.instance; }

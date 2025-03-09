@@ -222,7 +222,10 @@ class ActionHandler {
             this.mouseOffsetX = 0;
             this.mouseOffsetY = 0;
             this.draggedQBlock.unhighlight();
-            actionWatcher.actionTaken("blockDrag", {"block":this.draggedQBlock,"startPos":[this.startDragX,this.startDragY],"deletedWires":deletedWireSessions});
+            actionWatcher.actionTaken("blockDrag", {"block":this.draggedQBlock,
+                "startPos":[this.startDragX,this.startDragY],
+                "endPos":[this.draggedQBlock.x,this.draggedQBlock.y],
+                "deletedWires":deletedWireSessions});
             this.draggedQBlock = null;
         }
     }
@@ -306,9 +309,9 @@ class ActionHandler {
             } else if (type === "output") {
                 QBlock.connectOutput(blockIdnum, portnum, qWireSession.currentWire.id);
             }
+            actionWatcher.actionTaken("startWire", {"session":qWireSession.sessions[qWireSession.currentSessionID]});
             qWireSession.shadow2wire();
             qWireSession.endSession(portId);
-            actionWatcher.actionTaken("startWire", {"session":qWireSession.sessions[qWireSession.currentSessionID]});
             toolState.toSelect();
         }
     }
@@ -343,8 +346,6 @@ class ActionHandler {
         const x = qWireSession.currentWire.x + qWireSession.currentWire.direction[0];
         const y = qWireSession.currentWire.y + qWireSession.currentWire.direction[1];
 
-        /**
-         * Tolle Idee aber sehr buggy
         const possibleX = x + ActionHandler.blockOffsetX;
         const possibleY = y + ActionHandler.blockOffsetY;
         console.log(`Change Wire Direction a possibleX: ${possibleX} and possibleY: ${possibleY}`);
@@ -354,7 +355,6 @@ class ActionHandler {
             document.getElementById(portID).click();
             return;
         }
-        */
 
         qWireSession.shadow2wire()
         qWireSession.newshadowWire(x, y, newdirection);
@@ -443,53 +443,59 @@ class ActionHandler {
         }
     }
 
-    undoHandler = (undoAction, data) => {
-        if (undoAction === "createBlock") { //Block wurde erstellt
+    undoHandler = (undoAction) => {
+        if(!undoAction) return; //Warum auch immer
+        const action = undoAction.action;
+        const data = undoAction.data;
+        if (action === "createBlock") { //Block wurde erstellt
             data.block.destroy();
         }
-        else if(undoAction === "blockDrag"){ //Block wurde bewegt
+        else if(action === "blockDrag"){ //Block wurde bewegt
             data.block.place(data.startPos[0], data.startPos[1]);
             for(const session of data.deletedWires){
                 qWireSession.restoreSession(session);
-                this.connectQBlock(session.qbit_start);
-                this.connectQBlock(session.qbit_end);
+                this.connectQBlock(session.qbit_start, session.id);
+                this.connectQBlock(session.qbit_end, session.id);
             }
         }
-        else if(undoAction === "startWire"){ //Wire wurde erstellt
+        else if(action === "startWire"){ //Wire wurde erstellt
             const session = data.session;
             qWireSession.destroySession(session.id);
-            disconnectQBlock(session.qbit_start);
-            disconnectQBlock(session.qbit_end);
+            this.disconnectQBlock(session.qbit_start);
+            this.disconnectQBlock(session.qbit_end);
         }
-        else if(undoAction === "deleteWire"){ //Wire wurde gelöscht
+        else if(action === "deleteWire"){ //Wire wurde gelöscht
             qWireSession.restoreSession(data.session);
-            this.connectQBlock(data.session.qbit_start);
-            this.connectQBlock(data.session.qbit_end);
+            this.connectQBlock(data.session.qbit_start, data.session.id);
+            this.connectQBlock(data.session.qbit_end, data.session.id);
         }
     };
 
-    redoHandler = (redoAction, data) => {
-        if (redoAction === "createBlock") { //Block wurde erstellt
-            data.block.place(data.block.x, data.block.y);
+    redoHandler = (redoAction) => {
+        if(!redoAction) return; //Warum auch immer
+        const action = redoAction.action;
+        const data = redoAction.data;
+        if (action === "createBlock") { //Block wurde erstellt
+            QBlock.restoreBlock(data.block);
         }
-        else if(redoAction === "blockDrag"){ //Block wurde bewegt
-            data.block.place(data.startPos[0], data.startPos[1]);
+        else if(action === "blockDrag"){ //Block wurde bewegt
+            data.block.place(data.endPos[0], data.endPos[1]);
             for(const session of data.deletedWires){
                 qWireSession.destroySession(session.id);
-                disconnectQBlock(session.qbit_start);
-                disconnectQBlock(session.qbit_end);
+                this.disconnectQBlock(session.qbit_start);
+                this.disconnectQBlock(session.qbit_end);
             }
         }
-        else if(redoAction === "startWire"){ //Wire wurde erstellt
+        else if(action === "startWire"){ //Wire wurde erstellt
             qWireSession.restoreSession(data.session);
-            this.connectQBlock(data.session.qbit_start);
-            this.connectQBlock(data.session.qbit_end);
+            this.connectQBlock(data.session.qbit_start, data.session.id);
+            this.connectQBlock(data.session.qbit_end, data.session.id);
         }
-        else if(redoAction === "deleteWire"){ //Wire wurde gelöscht
+        else if(action === "deleteWire"){ //Wire wurde gelöscht
             const session = data.session;
             qWireSession.destroySession(session.id);
-            disconnectQBlock(session.qbit_start);
-            disconnectQBlock(session.qbit_end);
+            this.disconnectQBlock(session.qbit_start);
+            this.disconnectQBlock(session.qbit_end);
         }
     };
 
@@ -536,7 +542,7 @@ class ActionHandler {
         }
     };
 
-    connectQBlock(portId) {
+    connectQBlock(portId,sessionID) {
         const [type, blockIdnum, portnum] = portId.split("_");
         const block = QBlock.getBlockById(blockIdnum);
         if (!block) {
@@ -544,9 +550,9 @@ class ActionHandler {
             return;
         }
         if (type === "input") {
-            QBlock.connectInput(blockIdnum, portnum, qWireSession.currentWire.id);
+            QBlock.connectInput(blockIdnum, portnum, sessionID);
         } else if (type === "output") {
-            QBlock.connectOutput(blockIdnum, portnum, qWireSession.currentWire.id);
+            QBlock.connectOutput(blockIdnum, portnum, sessionID);
         }
     };
 

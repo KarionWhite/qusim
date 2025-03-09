@@ -410,6 +410,15 @@ class QBlock {
         return QBlock.qblocks;
     }
 
+    static restoreBlock(block){
+        if(QBlock.blocks[block.id]){
+            console.warn("Block with id already exists: ",block.id);
+            return;
+        }
+        QBlock.blocks[block.id] = block;
+        block.place(block.x,block.y);
+    }
+
     constructor(kind, shadow = false, parent = "toolbox_grid",force_id=false,id=0) {
         this.kind = kind;
         this.shadow = shadow;
