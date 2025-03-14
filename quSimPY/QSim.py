@@ -2,6 +2,45 @@ import multiprocessing as mp
 from typing import Any, Dict, List
 import cirq
 import numpy as np  # Importiere numpy
+import os
+
+
+def dict2strEnds(d: dict) -> dict:
+    # Wir haben das Problem, dass manchmal komische Wertetypen in den Dictionaries sind,
+    # die nicht in json serialisiert werden können. Deshalb wandeln wir alle Werte in Strings um.
+    new_dict = {}
+    stack = [(d,())]
+    while stack:
+        current, pfad = stack.pop()
+        if isinstance(current, dict):
+            for key, value in current.items():
+                stack.append((value, pfad + (str(key),))) # Keys müssen Strings sein, da sonst die Pfadverfolgung in append2NestedDict ein Albtraum wird.
+        elif isinstance(current, list):
+            for i, value in enumerate(current):
+                stack.append((value, pfad + (i,)))
+        else:
+            new_dict = append2NestedDict(new_dict, pfad, str(current))
+    return new_dict
+    
+def append2NestedDict(d: dict, keypath: tuple, value: Any) -> dict:
+    # Fügt einen Wert in ein verschachteltes Dictionary ein.
+    for key in keypath[:-1]:
+        if key not in d:
+            if isinstance(key, int):
+                d[key] = []
+            else:
+                d[key] = {}
+        d = d[key]
+    if type(value) not in [bool, int, float, str] and value is not None:
+        value = str(value) 
+    if isinstance(keypath[-1], int):
+        d.append(str(value))
+    else:
+        d[keypath[-1]] = str(value)
+    return d
+            
+        
+
 
 
 inoutRatio = {
@@ -278,13 +317,14 @@ class QSim:
             self.calc_stack["result"]["measurement_counts"] = str(e)
 
     def result(self):
-        self.calc_stack["result"]["cirquit"] = self.calc_stack["result"]["cirquit"].to_text_diagram()
-        for key in self.calc_stack["result"]["wavefunctions"]:
-            self.calc_stack["result"]["wavefunctions"][key] = str(np.array(self.calc_stack["result"]["wavefunctions"][key]).tolist())
-        for key in self.calc_stack["result"]["measurement_counts"]:
-            self.calc_stack["result"]["measurement_counts"][key] = str(self.calc_stack["result"]["measurement_counts"][key])
-        
-        return self.calc_stack["result"]        
+        return dict2strEnds(self.calc_stack["result"])       
+    
+    def export_cirq(self,path,name):
+        """Exportiert den Circuit als Cirq-Objekt."""
+        os.path.exists(path) or os.makedirs(path)
+        with open(os.path.join(path,name+".cirq"), "w") as f:
+            jsonCirq = self.calc_stack["result"]["cirquit"].to_json()
+            f.write(jsonCirq)
 
 class wait_for_input:
     def __init__(self, kind, block_id, qbit):

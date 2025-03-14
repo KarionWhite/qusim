@@ -20,9 +20,20 @@ def start_calc(calc_stack:dict, calc_id:str, calc_queue:mp.Queue):
     calc_stack = qsim.result()
     calc_stack["success"] = True
     calc_queue.put({calc_id: calc_stack})
-    print("Calculation finished")
     return
     
+def export_cirq(calc_stack:dict, calc_id:str, calc_queue:mp.Queue):
+    qsim = QSim(calc_stack,calc_id)
+    qsim.j2c()
+    if(calc_stack["success"] and "path" in calc_stack):
+        qsim.export_cirq(calc_stack["data"]["path"], calc_stack["data"]["name"])
+        calc_stack["success"] = True
+        calc_stack["message"] = "Exported to " + calc_stack["path"]
+    else:
+        calc_stack["success"] = False
+        calc_stack["message"] = "Export failed"
+    calc_queue.put({calc_id: calc_stack})
+    return
 
 if __name__ == "__main__":
     mp.freeze_support()
@@ -117,10 +128,21 @@ if __name__ == "__main__":
             else:
                 return {"status": "error", "message": "Calculation could not be found"}
 
-    @app.post("/pyExport")
+    @app.post("/export")
     async def pyExport(request_data: dict):
-        #TODO: Implement a way to export Calq as a Python Module
-        pass
+        calc_id = str(uuid.uuid4())
+        calc_stack = {}
+        calc_stack["status"] = "running"
+        calc_stack["data"] = request_data
+        calc_stack["result"] = None
+        calc_stack["error"] = None
+        if "path" not in request_data:
+            return {"status": "error", "message": "Path not provided"}
+        if "name" not in request_data:
+            return {"status": "error", "message": "Name not provided"} 
+        calc_Processes[calc_id] = mp.Process(target=export_cirq, name="QSIM_" + calc_id,args=(calc_stack, calc_id, calc_queue))
+        calc_Processes[calc_id].start()
+        return {"status": "started", "calc_id": calc_id, "message": "Export started"}
 
 
     async def shutdown_server():

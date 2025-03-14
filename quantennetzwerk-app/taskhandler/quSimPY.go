@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"os/user"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -160,4 +162,72 @@ func Shutdown() {
 	if err != nil {
 		log.Fatalf("taskhandler::shutdown-> error while shutting down the Python API: %w", err)
 	}
+}
+
+func getDownloadDir() (string, error) {
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+
+	switch runtime.GOOS {
+	case "windows":
+		return filepath.Join(usr.HomeDir, "Downloads"), nil
+	case "darwin":
+		return filepath.Join(usr.HomeDir, "Downloads"), nil
+	case "linux":
+		return filepath.Join(usr.HomeDir, "Downloads"), nil
+	default:
+		return "", fmt.Errorf("unsupported operating system")
+	}
+}
+
+type Export_Request struct {
+	Project_Space Project_Space `json:"project_space"`
+	Path          string        `json:"path"`
+	Name          string        `json:"name"`
+}
+
+type Export_Error struct {
+	Error   string `json:"error"`
+	Success bool   `json:"succes"`
+}
+
+func errorExport(err string) ([]byte, error) {
+	expErr := Export_Error{}
+	expErr.Error = err
+	expErr.Success = false
+	return json.Marshal(expErr)
+}
+
+func Export(data json.RawMessage) ([]byte, error) {
+	// Request an Python API senden
+	req := "/export"
+	expReq := Export_Request{}
+	err := json.Unmarshal(data, &expReq)
+	if err != nil {
+		expErr, err2 := errorExport("Error while unmarshalling data")
+		if err2 != nil {
+			return nil, err2
+		}
+		return expErr, nil
+	}
+	expReq.Path, err = getDownloadDir()
+	if err != nil {
+		expErr, err2 := errorExport("Error while getting download directory")
+		if err2 != nil {
+			return nil, err2
+		}
+		return expErr, nil
+	}
+	expReq.Name = expReq.Project_Space.PHeader.Name
+	resp, err := jsonRequest(req, data)
+	if err != nil {
+		expErr, err2 := errorExport("Error while sending request to Python API")
+		if err2 != nil {
+			return nil, err2
+		}
+		return expErr, nil
+	}
+	return resp, nil
 }
