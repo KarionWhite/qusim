@@ -54,6 +54,20 @@ class QWireSession {
         return null;
     }
 
+    getWireById(wire_id) {
+        for (const session in this.sessions) {
+            if(!this.sessions[session])continue;
+            const wires = this.sessions[session].wires;
+            if(!wires)continue;
+            for (const wire of wires) {
+                if (wire.id == wire_id) {
+                    return wire;
+                }
+            }
+        }
+        return null;
+    }
+
     findSessionByQbit(qbit_id) {
         for (const session in this.sessions) {
             if (session.qbit_start.id === qbit_id || session.qbit_end.id === qbit_id) {
@@ -222,7 +236,8 @@ class QWireSession {
             this.sessions[sessionID] = {
                 qbit_start: session.qbit_start,
                 qbit_end: session.qbit_end,
-                wires: []
+                wires: [],
+                id: sessionID
             };
             for (const wire of session.wires) {
                 this.sessions[sessionID].wires.push(new QWire(wire.x, wire.y, wire.direction,false,true,wire.id));

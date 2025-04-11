@@ -1,7 +1,7 @@
 import multiprocessing as mp
 from typing import Any, Dict, List
 import cirq
-import numpy as np  # Importiere numpy
+import numpy as np
 import os
 
 

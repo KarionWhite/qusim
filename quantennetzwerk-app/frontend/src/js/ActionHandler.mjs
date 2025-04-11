@@ -7,7 +7,7 @@ import { toolState } from './toolState.mjs';
 import QBlock from './QBlock.mjs';
 import { circuitArea } from './circuit_area.mjs';
 import qWireSession from './QWireSession.mjs';
-import { go_post_event, go_get_event} from './go_com.mjs';
+import { go_post_event, go_get_event } from './go_com.mjs';
 import project from './Project.mjs';
 import actionWatcher from './ActionWatcher.mjs';
 
@@ -51,7 +51,7 @@ class ActionHandler {
 
         //Registriere Navbar Events
         globalEvents.on("save-project", this.server_save_project);
-        globalEvents.on("load-project", this.server_load_project); 
+        globalEvents.on("load-project", this.server_load_project);
 
         //Registriere ActionWatcher Events
         globalEvents.on(actionWatcher.EMMITED_ACTIONS.UndoAction, this.undoHandler);
@@ -104,17 +104,17 @@ class ActionHandler {
         project.load(retObj);
     };
 
-    loadQCircuit = (qCircuit) =>{
+    loadQCircuit = (qCircuit) => {
         console.log("Loading QCircuit");
         console.log(qCircuit);
         qWireSession.load(qCircuit.wire_session);
-        for(const block in qCircuit.blocks){
-            const qBlock = new QBlock(qCircuit.blocks[block].kind,false,"toolbox_grid",true,block);
+        for (const block in qCircuit.blocks) {
+            const qBlock = new QBlock(qCircuit.blocks[block].kind, false, "toolbox_grid", true, block);
             qBlock.place(qCircuit.blocks[block].x, qCircuit.blocks[block].y);
-            for(let i = 0; i < qCircuit.blocks[block].inputWireIds.length; i++){
+            for (let i = 0; i < qCircuit.blocks[block].inputWireIds.length; i++) {
                 QBlock.connectInput(qBlock.id, i, qCircuit.blocks[block].inputWireIds[i]);
             }
-            for(let i = 0; i < qCircuit.blocks[block].outputWireIds.length; i++){
+            for (let i = 0; i < qCircuit.blocks[block].outputWireIds.length; i++) {
                 QBlock.connectOutput(qBlock.id, i, qCircuit.blocks[block].outputWireIds[i]);
             }
         }
@@ -125,8 +125,8 @@ class ActionHandler {
         const circuitAreaRect = this.circuit_area.getBoundingClientRect();
         ActionHandler.circuitAreaOffsetX = circuitAreaRect.left;
         ActionHandler.circuitAreaOffsetY = circuitAreaRect.top;
-        ActionHandler.blockOffsetX = circuitAreaRect.left +30;
-        ActionHandler.blockOffsetY = circuitAreaRect.top +60;
+        ActionHandler.blockOffsetX = circuitAreaRect.left + 30;
+        ActionHandler.blockOffsetY = circuitAreaRect.top + 60;
         //ActionHandler.wireOffsetX = circuitAreaRect.left + 50;
         //ActionHandler.wireOffsetY = circuitAreaRect.top + 50;
     }
@@ -141,7 +141,7 @@ class ActionHandler {
     shadowBlock(event) {
         const tool = toolState.getTool();
         if (QBlock.isQBlock(tool)) {
-            if(this.shadow) this.shadow.remove();
+            if (this.shadow) this.shadow.remove();
             this.shadow = new QBlock(tool, true);
             this.shadow.place(0, 0);
             document.addEventListener("mousemove", this.shadowDrag.bind(this));
@@ -190,7 +190,7 @@ class ActionHandler {
         if (QBlock.isQBlock(tool)) {
             const qblock = new QBlock(tool);
             qblock.place(x, y);
-            actionWatcher.actionTaken("createBlock", {"block":qblock});
+            actionWatcher.actionTaken("createBlock", { "block": qblock });
         }
     }
 
@@ -222,10 +222,12 @@ class ActionHandler {
             this.mouseOffsetX = 0;
             this.mouseOffsetY = 0;
             this.draggedQBlock.unhighlight();
-            actionWatcher.actionTaken("blockDrag", {"block":this.draggedQBlock,
-                "startPos":[this.startDragX,this.startDragY],
-                "endPos":[this.draggedQBlock.x,this.draggedQBlock.y],
-                "deletedWires":deletedWireSessions});
+            actionWatcher.actionTaken("blockDrag", {
+                "block": this.draggedQBlock,
+                "startPos": [this.startDragX, this.startDragY],
+                "endPos": [this.draggedQBlock.x, this.draggedQBlock.y],
+                "deletedWires": deletedWireSessions
+            });
             this.draggedQBlock = null;
         }
     }
@@ -242,7 +244,7 @@ class ActionHandler {
     dragKeydown(event) {
         if ((event.key === "Delete" || event.code === "KeyD" || event.type === "dblclick") && this.draggedQBlock) {
             const deletedWireSessions = ActionHandler.__deleteAttachedWires(this.draggedQBlock);
-            actionWatcher.actionTaken("blockDrag", {"block":this.draggedQBlock,"startPos":[this.startDragX,this.startDragY],"deletedWires":deletedWireSessions});
+            actionWatcher.actionTaken("blockDrag", { "block": this.draggedQBlock, "startPos": [this.startDragX, this.startDragY], "deletedWires": deletedWireSessions });
             this.draggedQBlock.unhighlight();
             this.draggedQBlock.destroy(this.circuit_area);
             document.removeEventListener("mousemove", this.dragMove);
@@ -309,7 +311,7 @@ class ActionHandler {
             } else if (type === "output") {
                 QBlock.connectOutput(blockIdnum, portnum, qWireSession.currentWire.id);
             }
-            actionWatcher.actionTaken("startWire", {"session":qWireSession.sessions[qWireSession.currentSessionID]});
+            actionWatcher.actionTaken("startWire", { "session": qWireSession.sessions[qWireSession.currentSessionID] });
             qWireSession.shadow2wire();
             qWireSession.endSession(portId);
             toolState.toSelect();
@@ -389,12 +391,12 @@ class ActionHandler {
             return;
         }
         toolState.toWire();
-        if(this.selectedWire !== null){
+        if (this.selectedWire !== null) {
             qWireSession.unselectSession(this.selectedWire);
             this.selectedWire = clicked_session;
             qWireSession.selectSession(this.selectedWire);
             document.addEventListener("keydown", this.wireKeydown);
-        } else if(this.selectedWire !== null && this.selectedWire === clicked_session){
+        } else if (this.selectedWire !== null && this.selectedWire === clicked_session) {
             qWireSession.unselectSession(clicked_session);
             this.selectedWire = null;
             document.removeEventListener("keydown", this.wireKeydown);
@@ -429,7 +431,7 @@ class ActionHandler {
         if (event.key === "Delete" || event.code === "KeyD") {
             qWireSession.unselectSession(this.selectedWire);
             let my_session = qWireSession.sessions[this.selectedWire];
-            actionWatcher.actionTaken("deleteWire", {"session":my_session});
+            actionWatcher.actionTaken("deleteWire", { "session": my_session });
             ActionHandler.__disconnectQbit(my_session.qbit_start);
             ActionHandler.__disconnectQbit(my_session.qbit_end);
             qWireSession.destroySession(this.selectedWire);
@@ -444,54 +446,57 @@ class ActionHandler {
     }
 
     undoHandler = (undoAction) => {
-        if(!undoAction) return; //Warum auch immer
+        if (!undoAction) return; //Warum auch immer
         const action = undoAction.action;
         const data = undoAction.data;
         if (action === "createBlock") { //Block wurde erstellt
             data.block.destroy();
         }
-        else if(action === "blockDrag"){ //Block wurde bewegt
+        else if (action === "blockDrag") { //Block wurde bewegt
             data.block.place(data.startPos[0], data.startPos[1]);
-            for(const session of data.deletedWires){
+            for (const session of data.deletedWires) {
                 qWireSession.restoreSession(session);
-                this.connectQBlock(session.qbit_start, session.id);
-                this.connectQBlock(session.qbit_end, session.id);
+                const [wire_id1,block_port1,wire_id2,block_port2] = ActionHandler.__findWireIds(session);
+                this.connectQBlock(block_port1, wire_id1);
+                this.connectQBlock(block_port2, wire_id2);
             }
         }
-        else if(action === "startWire"){ //Wire wurde erstellt
+        else if (action === "startWire") { //Wire wurde erstellt
             const session = data.session;
             qWireSession.destroySession(session.id);
             this.disconnectQBlock(session.qbit_start);
             this.disconnectQBlock(session.qbit_end);
         }
-        else if(action === "deleteWire"){ //Wire wurde gelöscht
+        else if (action === "deleteWire") { //Wire wurde gelöscht
             qWireSession.restoreSession(data.session);
-            this.connectQBlock(data.session.qbit_start, data.session.id);
-            this.connectQBlock(data.session.qbit_end, data.session.id);
+            const [wire_id1, block_port1, wire_id2, block_port2] = ActionHandler.__findWireIds(data.session);
+            this.connectQBlock(block_port1, wire_id1);
+            this.connectQBlock(block_port2, wire_id2);
         }
     };
 
     redoHandler = (redoAction) => {
-        if(!redoAction) return; //Warum auch immer
+        if (!redoAction) return; //Warum auch immer
         const action = redoAction.action;
         const data = redoAction.data;
         if (action === "createBlock") { //Block wurde erstellt
             QBlock.restoreBlock(data.block);
         }
-        else if(action === "blockDrag"){ //Block wurde bewegt
+        else if (action === "blockDrag") { //Block wurde bewegt
             data.block.place(data.endPos[0], data.endPos[1]);
-            for(const session of data.deletedWires){
+            for (const session of data.deletedWires) {
                 qWireSession.destroySession(session.id);
                 this.disconnectQBlock(session.qbit_start);
                 this.disconnectQBlock(session.qbit_end);
             }
         }
-        else if(action === "startWire"){ //Wire wurde erstellt
+        else if (action === "startWire") { //Wire wurde erstellt
             qWireSession.restoreSession(data.session);
-            this.connectQBlock(data.session.qbit_start, data.session.id);
-            this.connectQBlock(data.session.qbit_end, data.session.id);
+            const [wire_id1, block_port1, wire_id2, block_port2] = ActionHandler.__findWireIds(data.session);
+            this.connectQBlock(block_port1, wire_id1);
+            this.connectQBlock(block_port2, wire_id2);
         }
-        else if(action === "deleteWire"){ //Wire wurde gelöscht
+        else if (action === "deleteWire") { //Wire wurde gelöscht
             const session = data.session;
             qWireSession.destroySession(session.id);
             this.disconnectQBlock(session.qbit_start);
@@ -502,12 +507,12 @@ class ActionHandler {
     getQCircuit() {
         const qCircuit = {};
         const sproject = project.save
-        for(key in sproject){
+        for (key in sproject) {
             qCircuit[key] = sproject[key];
         }
         qCircuit.blocks = {};
-        for(const qBlock in QBlock.blocks) {
-            if(QBlock.blocks[qBlock].shadow === false) {
+        for (const qBlock in QBlock.blocks) {
+            if (QBlock.blocks[qBlock].shadow === false) {
                 qCircuit.blocks[qBlock] = QBlock.blocks[qBlock]
             }
         }
@@ -516,10 +521,10 @@ class ActionHandler {
         globalEvents.emit("sanityCheck", qCircuit);  // Event an alle Listener senden
         return qCircuit;
     }
-    
+
     clearQCircuit() {
-        for(const key in QBlock.blocks){
-            if(QBlock.blocks[key].shadow === false){
+        for (const key in QBlock.blocks) {
+            if (QBlock.blocks[key].shadow === false) {
                 QBlock.blocks[key].destroy();
             }
         }
@@ -542,7 +547,7 @@ class ActionHandler {
         }
     };
 
-    connectQBlock(portId,sessionID) {
+    connectQBlock(portId, sessionID) {
         const [type, blockIdnum, portnum] = portId.split("_");
         const block = QBlock.getBlockById(blockIdnum);
         if (!block) {
@@ -556,16 +561,46 @@ class ActionHandler {
         }
     };
 
+    static __findWireIds(wireSession) {
+        const wires = wireSession.wires;
+        const wire_ids = [];
+        for (const wire of wires) {
+            let multi_hit = false;
+            const hit1 = QBlock.hitInputOutput(wire.x, wire.y);
+            const hit2 = QBlock.hitInputOutput(wire.x + wire.direction[0], wire.y + wire.direction[1]);
+            for (const [id, port] of wire_ids) {
+                if (hit1 == port || hit2 == port) {
+                    multi_hit = true;
+                    break; // Wire ID already found
+                }
+            }
+            if (multi_hit) continue;
+            if (hit1) {
+                wire_ids.push([wire.id, hit1]);
+            }
+            else if (hit2) {
+                wire_ids.push([wire.id, hit2]);
+            }
+        }
+        if (wire_ids.length !== 2) {
+            console.error(`Wire IDs not found: ${wire_ids}`);
+            return null;
+        }
+        const [wire_id1, block_port1] = wire_ids[0];
+        const [wire_id2, block_port2] = wire_ids[1];
+        return [wire_id1, block_port1, wire_id2, block_port2];
+    }
+
     static __disconnectQbit(qbitString) {
         if (qbitString !== null) {
-          const [direction, blockId, portnum] = qbitString.split("_");
-          if (direction === "input") {
-            QBlock.disconnectInput(blockId, portnum);
-          } else if (direction === "output") {
-            QBlock.disconnectOutput(blockId, portnum);
-          }
+            const [direction, blockId, portnum] = qbitString.split("_");
+            if (direction === "input") {
+                QBlock.disconnectInput(blockId, portnum);
+            } else if (direction === "output") {
+                QBlock.disconnectOutput(blockId, portnum);
+            }
         }
-      }
+    }
 
     static __diconnectWire(QBlock_Port) {
         const [, blockId, portnum] = QBlock_Port.split("_");
@@ -586,7 +621,7 @@ class ActionHandler {
         const outputs = qBlock.outputWireIds;
         const destroyedWireSessions = [];
         for (const input of inputs) {
-            if(!input)continue;
+            if (!input) continue;
             const session = qWireSession.sessions[qWireSession.findSessionByWire(input)];
             if (!session) continue;
             const qStart = session.qbit_start;
@@ -601,7 +636,7 @@ class ActionHandler {
             qWireSession.destroySession(session.id);
         }
         for (const output of outputs) {
-            if(!output)continue;
+            if (!output) continue;
             const session = qWireSession.sessions[qWireSession.findSessionByWire(output)];
             if (!session) continue;
             const qStart = session.qbit_start;

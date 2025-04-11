@@ -460,3 +460,11 @@
 {"time":"2025-03-09T23:43:41.3305144+01:00","level":"ERROR","prefix":"-","file":"app.go","line":"107","message":"app.go::GetRequest-> error while marshalling the response: %wunexpected status code: 500"}
 {"time":"2025-03-14T21:48:28.2159131+01:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
 {"time":"2025-03-14T22:16:05.9647184+01:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-19T16:57:20.690067+01:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-03-19T16:57:21.10466+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"131","message":"app.go::startup-> Application is starting with executable path: D:\\data\\Uni\\Quantennetze\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app.exe"}
+{"time":"2025-03-19T16:57:21.10466+01:00","level":"DEBUG","prefix":"-","file":"app.go","line":"139","message":"app.go::startup-> Python path: D:\\data\\Uni\\Quantennetze\\qusim\\quSimPy\\dist\\main.exe"}
+{"time":"2025-04-11T00:37:23.8803384+02:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-04-11T00:37:27.4593269+02:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-04-11T00:37:37.2172845+02:00","level":"INFO","prefix":"-","file":"app.go","line":"114","message":"app.go::NewApp-> Creating a new App"}
+{"time":"2025-04-11T00:37:37.6533906+02:00","level":"DEBUG","prefix":"-","file":"app.go","line":"131","message":"app.go::startup-> Application is starting with executable path: D:\\data\\Uni\\Quantennetze\\qusim\\quantennetzwerk-app\\build\\bin\\quantennetzwerk-app-dev.exe"}
+{"time":"2025-04-11T00:37:37.6539176+02:00","level":"DEBUG","prefix":"-","file":"app.go","line":"139","message":"app.go::startup-> Python path: D:\\data\\Uni\\Quantennetze\\qusim\\quSimPy\\dist\\main.exe"}

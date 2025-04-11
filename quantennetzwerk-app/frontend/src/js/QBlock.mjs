@@ -482,6 +482,7 @@ class QBlock {
         for (const element of this.elements) {
             this.parent.appendChild(element);
         }
+        QBlock.blocks[this.id] = this;
     }
 
     __setPositioning(){
@@ -606,16 +607,36 @@ class QBlock {
         const outputs = this.elements.filter(element => element.tagName === "polygon");
         for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
-            const rect = input.getBoundingClientRect();
-            console.log(rect);
+            const cx = parseFloat(input.getAttribute("cx"));
+            const cy = parseFloat(input.getAttribute("cy"));
+            const radius = parseFloat(input.getAttribute("r"));
+            //Calculating the bounding box of the circle
+            const rect = {
+                left: cx - radius,
+                right: cx + radius,
+                top: cy - radius,
+                bottom: cy + radius
+            }
             if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
                 return `input_${this.id}_${i}`;
             }
         }
         for (let i = 0; i < outputs.length; i++) {
             const output = outputs[i];
-            const rect = output.getBoundingClientRect();
-            console.log(rect);
+            const points = output.attributes.points.nodeValue.split(" ");
+            const x1 = parseFloat(points[0].split(",")[0]);
+            const y1 = parseFloat(points[0].split(",")[1]);
+            const x2 = parseFloat(points[1].split(",")[0]);
+            const y2 = parseFloat(points[1].split(",")[1]);
+            const x3 = parseFloat(points[2].split(",")[0]);
+            const y3 = parseFloat(points[2].split(",")[1]);
+            //Calculating the bounding box of the triangle
+            const rect = {
+                left: Math.min(x1, x2, x3),
+                right: Math.max(x1, x2, x3),
+                top: Math.min(y1, y2, y3),
+                bottom: Math.max(y1, y2, y3)
+            }
             if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
                 return `output_${this.id}_${i}`;
             }
