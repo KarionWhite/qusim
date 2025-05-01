@@ -1,0 +1,22 @@
+
+#Installer-Verzeichniss
+nsis/
+*.exe
+*.pkg
+*.msi
+
+#Python-Build
+quSimPy/build/
+quSimPy/dist/
+quSimPy/pySim/
+quSimPy/pySim/
+
+
+
+#Go-Build
+quantennetzwerk-app/build/
+
+.vscode/
+
+#Python Umgebung
+pySim/
